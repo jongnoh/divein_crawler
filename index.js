@@ -37,7 +37,7 @@ const PORT = process.env.PORT;
 
 
 
-cron.schedule('05 * * * *', () => {
+cron.schedule('15 * * * *', () => {
   archiver.archiveTrendedKeywords();
 });
 cron.schedule('01 * * * *', () => {
@@ -47,7 +47,7 @@ cron.schedule('10 * * * *', () => {
   archiver.archiveNewRankingFromMusinsa();
   archiver.archiveTotalRankingFromMusinsa();
 });
-cron.schedule('01 13 * * *', () => {
+cron.schedule('01 12 * * *', () => {
   archiver.archiveBrandedTrendedArticles();
 });
 

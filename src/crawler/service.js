@@ -7,6 +7,8 @@ class SeleniumCrawler {
     this.options = new chrome.Options();
     this.options.addArguments('--window-size=1200,800');
     this.options.addArguments('--no-sandbox');
+    this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
+    this.options.addArguments('--disable-gpu');
     }
   crawl = async (url) => {
     try{
@@ -92,10 +94,10 @@ class SeleniumCrawler {
         try {
             // new ranking page
             await driver.get('https://www.musinsa.com/main/musinsa/ranking?storeCode=musinsa&sectionId=200&contentsId=&categoryCode=000');
-            await driver.wait(until.elementLocated(By.className('sc-qcgyze-0 kCfPZi')), 10000);
+            await driver.wait(until.elementLocated(By.css('article')), 10000);
             
             // scroll down until rank 200
-            const container = await driver.findElement(By.className('sc-qcgyze-0 kCfPZi'));
+            const container = await driver.findElement(By.css('article'));
             let found = false;
             let targetText = null;
             let maxScrolls = 10; // 무한루프 방지
@@ -126,15 +128,13 @@ class SeleniumCrawler {
             }
 
             //rank 1-200까지 data 수집
-            const itemElements = await driver.findElements(By.className('sc-1t5ihy5-0 clMPWr gtm-view-item-list'));
-            const itemBrandElements = await driver.findElements(By.className('text-etc_11px_semibold line-clamp-1 break-all whitespace-break-spaces text-black font-pretendard'));
-            const itemNameElements = await driver.findElements(By.className('text-body_13px_reg line-clamp-2 break-all whitespace-break-spaces text-black font-pretendard'));
+            const itemElements = await driver.findElements(By.css('div[class*="sc-1t5ihy5-0"]'));
             let items = [];
             for (let i = 0; i < 200; i++) {
                 items.push({
                     "rank": await itemElements[i].findElement(By.className('text-etc_11px_semibold text-black font-pretendard')).getText(),
-                    "brand": await itemBrandElements[i].getText(),
-                    "name": await itemNameElements[i].getText(),
+                    "brand": await itemElements[i].findElement(By.xpath('./div[2]/div[1]/a[1]/p')).getText(),
+                    "name": await itemElements[i].findElement(By.xpath('./div[2]/div[1]/a[2]/p')).getText(),
                     "itemId": await itemElements[i].getAttribute('data-item-id'),
                     "type": "newRanking",
                     "timestamp": timestamp
@@ -154,10 +154,11 @@ class SeleniumCrawler {
         try {
             // new ranking page
             await driver.get('https://www.musinsa.com/main/musinsa/ranking?storeCode=musinsa&sectionId=199');
-            await driver.wait(until.elementLocated(By.className('sc-qcgyze-0 kCfPZi')), 10000);
+            
+            await driver.wait(until.elementLocated(By.css('article')), 10000);
             
             // scroll down until rank 200
-            const container = await driver.findElement(By.className('sc-qcgyze-0 kCfPZi'));
+            const container = await driver.findElement(By.css('article'));
             let found = false;
             let targetText = null;
             let maxScrolls = 10; // 무한루프 방지
@@ -187,15 +188,13 @@ class SeleniumCrawler {
             }
 
             //rank 1-200까지 data 수집
-            const itemElements = await driver.findElements(By.className('sc-1t5ihy5-0 clMPWr gtm-view-item-list'));
-            const itemBrandElements = await driver.findElements(By.className('text-etc_11px_semibold line-clamp-1 break-all whitespace-break-spaces text-black font-pretendard'));
-            const itemNameElements = await driver.findElements(By.className('text-body_13px_reg line-clamp-2 break-all whitespace-break-spaces text-black font-pretendard'));
+            const itemElements = await driver.findElements(By.css('div[class*="sc-1t5ihy5-0"]'));
             let items = [];
             for (let i = 0; i < 200; i++) {
                 items.push({
                     "rank": await itemElements[i].findElement(By.className('text-etc_11px_semibold text-black font-pretendard')).getText(),
-                    "brand": await itemBrandElements[i].getText(),
-                    "name": await itemNameElements[i].getText(),
+                    "brand": await itemElements[i].findElement(By.xpath('./div[2]/div[1]/a[1]/p')).getText(),
+                    "name": await itemElements[i].findElement(By.xpath('./div[2]/div[1]/a[2]/p')).getText(),
                     "itemId": await itemElements[i].getAttribute('data-item-id'),
                     "type": "totalRanking",
                     "timestamp": timestamp
@@ -238,8 +237,8 @@ class SeleniumCrawler {
                 let previousItemCount = itemData.length; // 이전 아이템 개수 저장
                 for (let k = 0; k < itemElements.length; k++) {
                     itemIndex = previousItemCount + k
-                    itemBrand = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[1]/span')).getText();
-                    itemName = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]/span')).getText();
+                    itemBrand = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[1]/p')).getText();
+                    itemName = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]/p')).getText();
                     itemId = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]')).getAttribute('data-item-id');
                     if(!itemData.some(item => item.itemId === itemId) && itemData.length < 200) {
                         itemData.push({ index : itemIndex, brand : itemBrand, name : itemName, itemId, keyword, timestamp });
