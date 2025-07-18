@@ -1,4 +1,4 @@
-onst { Builder, By, until } = require('selenium-webdriver');
+const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 class SeleniumCrawler {
@@ -7,9 +7,9 @@ class SeleniumCrawler {
     this.options = new chrome.Options();
     this.options.addArguments('--window-size=1920,1080');
     this.options.addArguments('--no-sandbox');
-    this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
-    this.options.addArguments('--disable-gpu');
-    this.options.addArguments('--disable-dev-shm-usage');
+    // this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
+    // this.options.addArguments('--disable-gpu');
+    // this.options.addArguments('--disable-dev-shm-usage');
     }
   crawl = async (url) => {
     try{
@@ -35,6 +35,8 @@ class SeleniumCrawler {
             await driver.wait(until.elementLocated(By.className('sc-8tmsfl-0 gQVxzD search-home-popular-wrap')), 10000);
             // 인기검색어
             const popularElements = await driver.findElements(By.className('sc-8tmsfl-0 gQVxzD search-home-popular-wrap'));
+
+            const now = this.createKSTData();
             function convertToISODate(mdHmStr) {
                 // 예: "07.16 19:00, 기준" → "07.16 19:00"
                 const mdHm = mdHmStr.split(', ')[0];
@@ -42,8 +44,9 @@ class SeleniumCrawler {
                 const [month, day] = md.split('.').map(Number);
                 const [hour, minute] = hm.split(':').map(Number);
 
-                const now = this.createKSTData();
-                const year = now.getFullYear();
+                let date = new Date();
+                const kstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000)); // KST is UTC+9
+                const year = kstDate.getFullYear();
 
                 // padStart로 2자리 보장
                 const mm = String(month).padStart(2, '0');
@@ -226,7 +229,7 @@ class SeleniumCrawler {
             await driver.wait(until.elementLocated(By.className('sc-igtioI eSJwIO')), 10000);
 
             let upperElement, itemColumns, topColumnIndex, bottomColumnIndex, itemColumn
-            let maxScrolls = 40 // 무한루프 방지
+            let maxScrolls = 60 // 무한루프 방지
             let itemData = [];
             let kstDate = this.createKSTData();
             const timestamp = kstDate.toISOString().slice(0, 19).replace('T', ' ')
@@ -240,33 +243,36 @@ class SeleniumCrawler {
             let itemIndex, itemBrand, itemName, itemId
             
            
-
+            let itemElements;
             for (let j = 0; j < Number(bottomColumnIndex)-Number(topColumnIndex)+1; j++) {
-                let itemElements = await itemColumns[j].findElements(By.className('sc-igtioI eSJwIO'));
+                itemElements = await itemColumns[j].findElements(By.className('sc-igtioI eSJwIO'));
                 let previousItemCount = itemData.length; // 이전 아이템 개수 저장
                 for (let k = 0; k < itemElements.length; k++) {
                     itemIndex = previousItemCount + k
-                    itemBrand = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[1]/p')).getText();
-                    itemName = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]/p')).getText();
+                    itemBrand = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[1]/span')).getText();
+                    itemName = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]/span')).getText();
                     itemId = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]')).getAttribute('data-item-id');
                     if(!itemData.some(item => item.itemId === itemId) && itemData.length < 200) {
                         itemData.push({ index : itemIndex, brand : itemBrand, name : itemName, itemId, keyword, timestamp });
                     }
                 }
-                if(itemData.length == 200) {
-                    console.log('200개 아이템 수집 완료 :' +  keyword) ;
-                    break;
             }
-            }
-
-            await driver.actions().sendKeys('\uE00F').perform();;
+            if(itemData.length == 200) {
+                console.log('200개 아이템 수집 완료 :' +  keyword) ;
+                break;
+            }else{await driver.executeScript(`arguments[0].scrollIntoView();`, itemColumns[itemColumns.length - 1]);
+            await driver.wait(until.elementLocated(By.css(`[data-item-index="${Number(bottomColumnIndex)+1}"]`)), 10000);
+            console.log('스크롤 다운');}
+            
+            
+            
         }
              return { itemData };
         } catch (err) {
             console.error('Error during crawling:', err);
             throw err;
         } finally {
-            // await driver.quit();
+            await driver.quit();
         }
     }
     getBrandedTrendedArticles = async () => {
