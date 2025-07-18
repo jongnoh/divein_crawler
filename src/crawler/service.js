@@ -1,14 +1,15 @@
-const { Builder, By, until } = require('selenium-webdriver');
+onst { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 
 class SeleniumCrawler {
     constructor() {
 
     this.options = new chrome.Options();
-    this.options.addArguments('--window-size=1200,800');
+    this.options.addArguments('--window-size=1920,1080');
     this.options.addArguments('--no-sandbox');
     this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
     this.options.addArguments('--disable-gpu');
+    this.options.addArguments('--disable-dev-shm-usage');
     }
   crawl = async (url) => {
     try{
@@ -18,6 +19,12 @@ class SeleniumCrawler {
         throw new Error('Crawling failed');
     }
   }
+
+        createKSTData = () => {
+        let date = new Date();
+        const kstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000)); // KST is UTC+9
+        return kstDate
+    }
 
       getKeywordsFromMusinsa = async () => {
         let driver = await new Builder().forBrowser('chrome').setChromeOptions(this.options).build();
@@ -35,7 +42,7 @@ class SeleniumCrawler {
                 const [month, day] = md.split('.').map(Number);
                 const [hour, minute] = hm.split(':').map(Number);
 
-                const now = new Date();
+                const now = this.createKSTData();
                 const year = now.getFullYear();
 
                 // padStart로 2자리 보장
@@ -101,8 +108,8 @@ class SeleniumCrawler {
             let found = false;
             let targetText = null;
             let maxScrolls = 10; // 무한루프 방지
-
-            let timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ')
+            let kstDate = this.createKSTData();
+            let timestamp = kstDate.toISOString().slice(0, 19).replace('T', ' ');
 
 
             for (let i = 0; i < maxScrolls; i++) {
@@ -163,7 +170,8 @@ class SeleniumCrawler {
             let targetText = null;
             let maxScrolls = 10; // 무한루프 방지
 
-            let timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ')
+            let kstDate = this.createKSTData();
+            let timestamp = kstDate.toISOString().slice(0, 19).replace('T', ' ');
 
             for (let i = 0; i < maxScrolls; i++) {
                 const elements = await container.findElements(By.xpath('//*[@class="text-etc_11px_semibold text-black font-pretendard"]'));
@@ -220,7 +228,8 @@ class SeleniumCrawler {
             let upperElement, itemColumns, topColumnIndex, bottomColumnIndex, itemColumn
             let maxScrolls = 40 // 무한루프 방지
             let itemData = [];
-             const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ')
+            let kstDate = this.createKSTData();
+            const timestamp = kstDate.toISOString().slice(0, 19).replace('T', ' ')
             for (let i = 0; i < maxScrolls; i++) {
                 upperElement = await driver.findElement(By.css('[data-testid="virtuoso-item-list"]'));
                 itemColumns = await upperElement.findElements(By.css('[style="overflow-anchor: none;"]'));
@@ -269,7 +278,9 @@ class SeleniumCrawler {
             const articleBoardElement = await driver.findElement(By.className('article-board'));
             const trs = await articleBoardElement.findElements(By.xpath('//div[@class="article-board"]//table//tbody/tr'));
             let link, articleId, articleIndex, title, commentCount, viewCountRaw, viewCount;
-            const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ')
+
+            let kstDate = this.createKSTData();
+            const timestamp = kstDate.toISOString().slice(0, 19).replace('T', ' ')
             let articleList = [];
             for (let i = 0; i < trs.length; i++) {
                 articleIndex = i + 1;
