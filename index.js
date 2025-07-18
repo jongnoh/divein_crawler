@@ -51,6 +51,8 @@ cron.schedule('01 12 * * *', () => {
   archiver.archiveBrandedTrendedArticles();
 });
 
+
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

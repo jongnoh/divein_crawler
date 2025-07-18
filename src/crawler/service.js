@@ -7,9 +7,9 @@ class SeleniumCrawler {
     this.options = new chrome.Options();
     this.options.addArguments('--window-size=1920,1080');
     this.options.addArguments('--no-sandbox');
-    // this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
-    // this.options.addArguments('--disable-gpu');
-    // this.options.addArguments('--disable-dev-shm-usage');
+    this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
+    this.options.addArguments('--disable-gpu');
+    this.options.addArguments('--disable-dev-shm-usage');
     }
   crawl = async (url) => {
     try{
@@ -248,7 +248,7 @@ class SeleniumCrawler {
                 itemElements = await itemColumns[j].findElements(By.className('sc-igtioI eSJwIO'));
                 let previousItemCount = itemData.length; // 이전 아이템 개수 저장
                 for (let k = 0; k < itemElements.length; k++) {
-                    itemIndex = previousItemCount + k
+                    itemIndex = previousItemCount + k + 1
                     itemBrand = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[1]/span')).getText();
                     itemName = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]/span')).getText();
                     itemId = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]')).getAttribute('data-item-id');
