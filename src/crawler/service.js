@@ -44,7 +44,7 @@ class SeleniumCrawler {
                 const [month, day] = md.split('.').map(Number);
                 const [hour, minute] = hm.split(':').map(Number);
 
-                let date = new Date();
+                let date = new Date()
                 const kstDate = new Date(date.getTime() + (9 * 60 * 60 * 1000)); // KST is UTC+9
                 const year = kstDate.getFullYear();
 

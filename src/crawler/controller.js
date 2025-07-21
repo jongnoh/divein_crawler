@@ -46,6 +46,22 @@ class CrawlerController {
       res.status(500).json({ error: err.message });
     }
 }
+
+  
+    archiveTrendedKeywords = async() => {
+        try {
+            const keywordsData = await this.try3times(null, this.seleniumCrawler.getKeywordsFromMusinsa);
+            console.log('크롤링 완료:', keywordsData);
+            if (keywordsData) {
+            await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.keywordList);
+            console.log('DB 저장 완료');
+        } else {
+            console.error('키워드 데이터 없음');
+        }
+    } catch (err) {
+        console.error('cron 작업 에러:', err);
+    }
+}
 }
 
 module.exports = CrawlerController;

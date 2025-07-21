@@ -43,6 +43,7 @@ class Archiver {
             console.log('크롤링 완료:', keywordsData);
             if (keywordsData) {
             await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.keywordList);
+            console.log(keywordsData.keywordList);
             console.log('DB 저장 완료');
         } else {
             console.error('키워드 데이터 없음');
