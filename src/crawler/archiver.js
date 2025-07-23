@@ -104,6 +104,7 @@ class Archiver {
             } else {
                 console.error('브랜드 트렌드 아티클 데이터 없음');
             }
+            return null
         } catch (err) {
             console.error('cron 작업 에러:', err);
         }

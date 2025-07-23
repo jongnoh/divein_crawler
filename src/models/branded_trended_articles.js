@@ -25,6 +25,10 @@ module.exports = function(sequelize, DataTypes) {
     articleIndex: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    writer : {
+      type: DataTypes.STRING(50),
+      allowNull: true
     }
   }, {
     sequelize,
