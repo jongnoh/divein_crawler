@@ -305,16 +305,86 @@ class SeleniumCrawler {
     
     // }
 
-    getKeywordsFromMusinsa = async () => {
+    getTrendedKeywordsFromMusinsa = async () => {
     const response = await axios({
         method: 'get',
-        url: 'https://goods.musinsa.com/api2/review/v1/goods/4371011/reviews/summary',
+        url: 'https://api.musinsa.com/api2/dp/v1/keyword/search-home?popularCount=10&gf=A',
         headers: {
-            'User-Agent': 'Chrome/58.0.3029.110'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
         }
     })
-    console.log('Crawling completed:', response.data);
-    return response.data;
+
+
+    function convertToISODate(mdHmStr) {
+                // 예: "07.16 19:00, 기준" → "07.16 19:00"
+                const mdHm = mdHmStr.split(', ')[0];
+                const [md, hm] = mdHm.split(' '); // md: "07.16", hm: "19:00"
+                const [month, day] = md.split('.').map(Number);
+                const [hour, minute] = hm.split(':').map(Number);
+                
+                const date = new Date();
+                const now = new Date(date.getTime() + (9 * 60 * 60 * 1000))
+                const year = now.getFullYear();
+
+                // padStart로 2자리 보장
+                const mm = String(month).padStart(2, '0');
+                const dd = String(day).padStart(2, '0');
+                const hh = String(hour).padStart(2, '0');
+                const min = String(minute).padStart(2, '0');
+
+                return `${year}-${mm}-${dd} ${hh}:${min}`;
+            }
+
+    const popularData = response.data.data.componentList[0].items
+    const popularTimestamp = response.data.data.componentList[0].meta.updateDate
+    const popularISOString = convertToISODate(popularTimestamp);
+
+
+    const popular = popularData.map((item, index) => ({
+        keyword: item.text,
+        rank: index + 1,
+        timestamp: popularISOString,
+        type: '인기'
+    }))
+    const risingData = response.data.data.componentList[1].items
+    const risingTimestamp = response.data.data.componentList[1].meta.updateDate
+    const risingISOString = convertToISODate(risingTimestamp);
+    const rising = risingData.map((item, index) => ({
+        keyword: item.text,
+        rank: index + 1,
+        timestamp: risingISOString,
+        type: '급상승'
+    }))
+    return { popular, rising }
 }
+    getSearchResultFromMusinsa = async () => {
+        let keywords= JSON.parse(process.env.MUSINSA_KEYWORDS_JULY)
+        console.log('크롤링 시작:', keywords);
+        let list = []
+        const timestamp = this.createKSTData().toISOString().slice(0, 19).replace('T', ' ')
+        for(let keyword of keywords){
+            console.log('크롤링 중:', keyword);
+        for (let i =0; i <4; i++) {
+        const response = await axios({
+            method: 'get',
+            url: `https://api.musinsa.com/api2/dp/v1/plp/goods?gf=A&keyword=${keyword}&sortCode=POPULAR&page=${i+1}}&size=50&caller=SEARCH`,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+            }
+        })
+        console.log(`크롤링 완료: ${keyword} - 페이지 ${i + 1}`);
+        response.data.list.map((item, index) => {
+            list.push({
+                index: index + (i * 50),
+                brand: item.brandName,
+                name: item.goodsName,
+                itemId: item.goodsNo,
+                keyword,
+                timestamp: timestamp
+            })
+        })
+    }
+}
+    }
 }
 module.exports = SeleniumCrawler;

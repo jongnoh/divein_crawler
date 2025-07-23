@@ -12,7 +12,7 @@ const Controller = require('./src/crawler/controller.js');
 const archiver = new Archiver();
 const controller = new Controller();
 const sequelize = require('./src/utils/sequelize');
-const User = require('./src/models/User');
+const User = require('./src/models/users');
 // Load environment variables     
 dotenv.config();
 
@@ -23,7 +23,7 @@ app.get('/total-ranking', controller.getTotalRankingFromMusinsa);
 app.get('/search/keywords', controller.getSearchResultFromMusinsa);
 app.get('/naver/login', controller.getBrandedTrendedArticles);
 
-app.get('/test', controller.getKeywordsFromMusinsa);
+app.get('/test', archiver.archiveTrendedKeywordsFromMusinsa);
 
 const PORT = process.env.PORT;
 
