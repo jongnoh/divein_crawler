@@ -23,7 +23,7 @@ app.get('/total-ranking', controller.getTotalRankingFromMusinsa);
 app.get('/search/keywords', controller.getSearchResultFromMusinsa);
 app.get('/naver/login', controller.getBrandedTrendedArticles);
 
-app.get('/test', archiver.archiveTrendedKeywords)
+app.get('/test', archiver.archiveSearchResultFromMusinsa)
 
 const PORT = process.env.PORT;
 

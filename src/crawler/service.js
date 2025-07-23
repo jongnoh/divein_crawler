@@ -225,8 +225,8 @@ class SeleniumCrawler {
         try {
             // 무신사 추천순
             await driver.get(`https://www.musinsa.com/search/goods?keyword=${keyword}&keywordStatus=correction&sortCode=POPULAR`);
-            //첫 번째 상품 대기
-            await driver.wait(until.elementLocated(By.className('sc-igtioI eSJwIO')), 10000);
+            //첫 번째 상품 column 대기
+            await driver.wait(until.elementLocated(By.css('[style="overflow-anchor: none;"]')), 10000);
 
             let upperElement, itemColumns, topColumnIndex, bottomColumnIndex, itemColumn
             let maxScrolls = 60 // 무한루프 방지
@@ -245,7 +245,7 @@ class SeleniumCrawler {
            
             let itemElements;
             for (let j = 0; j < Number(bottomColumnIndex)-Number(topColumnIndex)+1; j++) {
-                itemElements = await itemColumns[j].findElements(By.className('sc-igtioI eSJwIO'));
+                itemElements = await itemColumns[j].findElements(By.className('sc-jLJhrC kUOkIO'));
                 let previousItemCount = itemData.length; // 이전 아이템 개수 저장
                 for (let k = 0; k < itemElements.length; k++) {
                     itemIndex = previousItemCount + k + 1
@@ -253,7 +253,7 @@ class SeleniumCrawler {
                     itemName = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]/span')).getText();
                     itemId = await itemElements[k].findElement(By.xpath('.//div[2]/div/div[1]/a[2]')).getAttribute('data-item-id');
                     if(!itemData.some(item => item.itemId === itemId) && itemData.length < 200) {
-                        itemData.push({ index : itemIndex, brand : itemBrand, name : itemName, itemId, keyword, timestamp });
+                        await itemData.push({ index : itemIndex, brand : itemBrand, name : itemName, itemId, keyword, timestamp });
                     }
                 }
             }
@@ -262,7 +262,7 @@ class SeleniumCrawler {
                 break;
             }else{await driver.executeScript(`arguments[0].scrollIntoView();`, itemColumns[itemColumns.length - 1]);
             await driver.wait(until.elementLocated(By.css(`[data-item-index="${Number(bottomColumnIndex)+1}"]`)), 10000);
-            console.log('스크롤 다운');}
+            console.log('스크롤 다운', itemData.length);}
             
             
             
