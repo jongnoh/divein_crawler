@@ -23,7 +23,7 @@ app.get('/total-ranking', controller.getTotalRankingFromMusinsa);
 app.get('/search/keywords', controller.getSearchResultFromMusinsa);
 app.get('/naver/login', controller.getBrandedTrendedArticles);
 
-app.get('/test', archiver.archiveSearchResultFromMusinsa);
+app.get('/test', archiver.archiveNewRankingFromMusinsa);
 
 const PORT = process.env.PORT;
 
@@ -39,19 +39,19 @@ const PORT = process.env.PORT;
 
 
 
-// cron.schedule('15 * * * *', () => {
-//   archiver.archiveTrendedKeywords();
-// });
-// cron.schedule('01 * * * *', () => {
-//   archiver.archiveSearchResultFromMusinsa();
-// });
+cron.schedule('16 * * * *', () => {
+  archiver.archiveTrendedKeywordsFromMusinsa();
+});
+cron.schedule('01 * * * *', () => {
+  archiver.archiveSearchResultFromMusinsa();
+});
 // cron.schedule('10 * * * *', () => {
 //   archiver.archiveNewRankingFromMusinsa();
 //   archiver.archiveTotalRankingFromMusinsa();
 // });
-// cron.schedule('01 12 * * *', () => {
-//   archiver.archiveBrandedTrendedArticles();
-// });
+cron.schedule('01 12 * * *', () => {
+  archiver.archiveBrandedTrendedArticles();
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

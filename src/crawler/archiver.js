@@ -17,32 +17,32 @@ class Archiver {
         this.musinsaKeywords = JSON.parse(process.env.MUSINSA_KEYWORDS_JULY);
     }
 
-//     try3times = async (parameter, callback) => {
-//     try {
-//         let proceed = false;
-//         let result;
-//         for (let i = 0; i < 3 && !proceed; i++) {
-//             result = await callback(parameter);
-//             if (result) {
-//                 proceed = true;
-//                 break;
-//             }
-//         }
-//         if (!proceed || !result) {
-//             console.error('Failed to fetch keywords after multiple attempts');
-//         }
-//         return result;
-//     } catch (error) {
-//         console.error('Error occurred while fetching keywords:', error);
-//     }
-// }
+    try3times = async (parameter, callback) => {
+    try {
+        let proceed = false;
+        let result;
+        for (let i = 0; i < 3 && !proceed; i++) {
+            result = await callback(parameter);
+            if (result) {
+                proceed = true;
+                break;
+            }
+        }
+        if (!proceed || !result) {
+            console.error('Failed to fetch keywords after multiple attempts');
+        }
+        return result;
+    } catch (error) {
+        console.error('Error occurred while fetching keywords:', error);
+    }
+}
 
     archiveNewRankingFromMusinsa = async() => {
         try {
-            const rankingData = await this.try3times(null, this.seleniumCrawler.getNewRankingFromMusinsa);
+            const rankingData = await this.seleniumCrawler.getNewRankingFromMusinsa();
             console.log('크롤링 완료:', rankingData);
             if (rankingData) {
-                await this.models.musinsa_ranking.bulkCreate(rankingData.items);
+                await this.models.musinsa_ranking.bulkCreate(rankingData);
                 console.log('DB 저장 완료');
             } else {
                 console.error('랭킹 데이터 없음');
@@ -53,10 +53,10 @@ class Archiver {
 }
     archiveTotalRankingFromMusinsa = async() => {
         try {
-            const rankingData = await this.try3times(null, this.seleniumCrawler.getTotalRankingFromMusinsa);
+            const rankingData = await this.seleniumCrawler.getTotalRankingFromMusinsa()
             console.log('크롤링 완료:', rankingData);
             if (rankingData) {
-                await this.models.musinsa_ranking.bulkCreate(rankingData.items);
+                await this.models.musinsa_ranking.bulkCreate(rankingData);
                 console.log('DB 저장 완료');
             } else {
                 console.error('랭킹 데이터 없음');
@@ -103,9 +103,7 @@ archiveTrendedKeywordsFromMusinsa = async(req,res) => {
             let result1 = await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.popular);
             let result2 = await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.rising);
             console.log('DB 저장 완료');
-            return res.status(200).json({
-                message: '트렌드 키워드 크롤링 및 저장 완료'
-            });
+            return null
         } else {
             console.error('키워드 데이터 없음');
         }

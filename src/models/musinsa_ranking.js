@@ -30,7 +30,19 @@ module.exports = function(sequelize, DataTypes) {
     timestamp: {
       type: DataTypes.DATE,
       allowNull: true
-    }
+    },
+    likeCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    watchingCount: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
+    purchasingCount: {
+      type: DataTypes.STRING(100),
+      allowNull: true
+    },
   }, {
     sequelize,
     tableName: 'musinsa_ranking',
