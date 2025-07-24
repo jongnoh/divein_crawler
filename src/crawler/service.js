@@ -501,6 +501,92 @@ class SeleniumCrawler {
             throw error;
         }
     }
+    getTotalRankingFromMusinsa = async () => {
+        try { 
+            const response = await axios({
+                method: 'get',
+                url: 'https://api.musinsa.com/api2/hm/web/v5/pans/ranking?storeCode=musinsa&sectionId=199&contentsId=&categoryCode=000&gf=A',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+                }
+            });
+            const dataArray = response.data.data.modules;
+            let items = []
+            for(let i =0; i < dataArray.length; i++) {
+                if (dataArray[i].type === 'MULTICOLUMN') {
+                    for (let j = 0; j < dataArray[i].items.length; j++) {
+                        if (dataArray[i].items[j].type !== "PRODUCT_COLUMN") continue;
+                        let watchingCount, purchasingCount;
+                        if (dataArray[i].items[j].info.additionalInformation){
+                            watchingCount = null;
+                            purchasingCount = null;
+                            for (let k = 0; k < dataArray[i].items[j].info.additionalInformation.length; k++) {
+                                if (dataArray[i].items[j].info.additionalInformation[k].text.includes('보는 중')) {
+                                    watchingCount = dataArray[i].items[j].info.additionalInformation[k].text.split('명이')[0]
+                                    if (watchingCount.includes('만')) {
+                                        watchingCount = String(Number(watchingCount.split('만')[0]) * 10000)
+                                    }
+                                    if (watchingCount.includes('천')) {
+                                        watchingCount = String(Number(watchingCount.split('천')[0]) * 1000)
+                                    }
+                                }
+                                if (dataArray[i].items[j].info.additionalInformation[k].text.includes('구매 중')) {
+                                    purchasingCount = dataArray[i].items[j].info.additionalInformation[k].text.split('명이')[0]
+                                    if (purchasingCount.includes('만')) {
+                                        purchasingCount = String(Number(purchasingCount.split('만')[0]) * 10000)
+                                    }
+                                    if (purchasingCount.includes('천')) {
+                                        purchasingCount = String(Number(purchasingCount.split('천')[0]) * 1000)
+                                    }
+                                }
+                            }
+                        }
+                        if(items.length < 200){
+                        items.push({
+                            "itemId": dataArray[i].items[j].id,
+                            "brand": dataArray[i].items[j].info.brandName,
+                            "name": dataArray[i].items[j].info.productName,
+                            "rank": dataArray[i].items[j].image.rank,
+                            "type": "TotalRanking",
+                            "timestamp": this.createKSTData().toISOString().slice(0, 19).replace('T', ' '),
+                            "watchingCount": watchingCount || null,
+                            "purchasingCount": purchasingCount || null
+                        })
+
+
+
+                    
+                    }
+                    }}
+            }
+            let idsOfItems = [...items.map(item => item.itemId)]
+
+            const likesResponse = await axios({
+            method: 'post',
+            url: `https://like.musinsa.com/like/api/v2/liketypes/goods/counts`,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+            },
+            data: {
+                    "relationIds": idsOfItems
+                }
+        })
+
+        let likesObjectsArray = likesResponse.data.data.contents.items
+        for (let i = 0; i < likesObjectsArray.length; i++) {
+            let itemOfList = items.find(item => item.itemId == likesObjectsArray[i].relationId)
+            if (itemOfList) {
+                itemOfList.likeCount = likesObjectsArray[i].count
+            } else {
+                console.warn('해당 relationId를 가진 객체를 찾지 못했습니다:', likesObjectsArray[i].relationId);
+            }
+        }
+            return items
+            } catch (error) {
+            console.error('Error fetching total ranking:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = SeleniumCrawler;

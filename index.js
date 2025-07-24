@@ -45,10 +45,10 @@ cron.schedule('16 * * * *', () => {
 cron.schedule('01 * * * *', () => {
   archiver.archiveSearchResultFromMusinsa();
 });
-// cron.schedule('10 * * * *', () => {
-//   archiver.archiveNewRankingFromMusinsa();
-//   archiver.archiveTotalRankingFromMusinsa();
-// });
+cron.schedule('10 * * * *', () => {
+  archiver.archiveNewRankingFromMusinsa();
+  archiver.archiveTotalRankingFromMusinsa();
+});
 cron.schedule('01 12 * * *', () => {
   archiver.archiveBrandedTrendedArticles();
 });
