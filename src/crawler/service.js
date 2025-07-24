@@ -357,34 +357,63 @@ class SeleniumCrawler {
     }))
     return { popular, rising }
 }
-    getSearchResultFromMusinsa = async () => {
-        let keywords= JSON.parse(process.env.MUSINSA_KEYWORDS_JULY)
-        console.log('크롤링 시작:', keywords);
+    getSearchResultFromMusinsa = async (keyword) => {
+        try {
         let list = []
         const timestamp = this.createKSTData().toISOString().slice(0, 19).replace('T', ' ')
-        for(let keyword of keywords){
-            console.log('크롤링 중:', keyword);
+
+            let idsOfKeyword = []
         for (let i =0; i <4; i++) {
         const response = await axios({
             method: 'get',
-            url: `https://api.musinsa.com/api2/dp/v1/plp/goods?gf=A&keyword=${keyword}&sortCode=POPULAR&page=${i+1}}&size=50&caller=SEARCH`,
+            url: `https://api.musinsa.com/api2/dp/v1/plp/goods?gf=A&keyword=${keyword}&sortCode=POPULAR&page=${i+1}&size=50&caller=SEARCH`,
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
             }
         })
-        console.log(`크롤링 완료: ${keyword} - 페이지 ${i + 1}`);
-        response.data.list.map((item, index) => {
+        
+            response.data.data.list.map(async (item, index) => {
             list.push({
-                index: index + (i * 50),
+                index: index + (i * 50) + 1,
+                itemId: item.goodsNo,
                 brand: item.brandName,
                 name: item.goodsName,
-                itemId: item.goodsNo,
+                reviewCount: item.reviewCount,
+                reviewScore: item.reviewScore,
+                likeCount: null,
                 keyword,
                 timestamp: timestamp
             })
+            idsOfKeyword.push(item.goodsNo)
+            })
+        }
+        //키워드마다
+        const likesResponse = await axios({
+        method: 'post',
+        url: `https://like.musinsa.com/like/api/v2/liketypes/goods/counts`,
+        headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+            },
+            data: {
+                    "relationIds": idsOfKeyword
+                }
         })
+        let likesObjectsArray = likesResponse.data.data.contents.items
+        for (let i = 0; i < likesObjectsArray.length; i++) {
+            let itemOfList = list.find(item => item.itemId == likesObjectsArray[i].relationId)
+            if (itemOfList) {
+                itemOfList.likeCount = likesObjectsArray[i].count
+            } else {
+                console.warn('해당 relationId를 가진 객체를 찾지 못했습니다:', likesObjectsArray[i].relationId);
+            }
+        }
+    return list
+
+} catch (err) {
+        console.error('Error during crawling:', err);
+        throw err;
     }
 }
-    }
 }
+
 module.exports = SeleniumCrawler;

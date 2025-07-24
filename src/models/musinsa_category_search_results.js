@@ -23,6 +23,18 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(100),
       allowNull: true
     },
+    reviewCount: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    reviewScore: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    likeCount:{
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
     keyword: {
       type: DataTypes.STRING(100),
       allowNull: true

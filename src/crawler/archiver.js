@@ -37,21 +37,6 @@ class Archiver {
 //     }
 // }
 
-
-ords = async() => {
-        try {
-            const keywordsData = await this.try3times(null, this.seleniumCrawler.getKeywordsFromMusinsa);
-            console.log('크롤링 완료:', keywordsData);
-            if (keywordsData) {
-            await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.keywordList);
-            console.log('DB 저장 완료');
-        } else {
-            console.error('키워드 데이터 없음');
-        }
-    } catch (err) {
-        console.error('cron 작업 에러:', err);
-    }
-}
     archiveNewRankingFromMusinsa = async() => {
         try {
             const rankingData = await this.try3times(null, this.seleniumCrawler.getNewRankingFromMusinsa);
@@ -81,48 +66,45 @@ ords = async() => {
         }
 }
 
-//     archiveSearchResultFromMusinsa = async(keyword) => {
-//         try {
-//             for (const keyword of this.musinsaKeywords) {
-//                 const searchData = await this.try3times(keyword, this.seleniumCrawler.getSearchResultFromMusinsa);
-//                 console.log('크롤링 완료:', searchData);
-//                 if (searchData) {
-//                     await this.models.musinsa_category_search_results.bulkCreate(searchData.itemData);
-//                     console.log('DB 저장 완료');
-//                 }
-//             }
-//         } catch (err) {
-//             console.error('cron 작업 에러:', err);
-//         }
-//     }
-//     archiveBrandedTrendedArticles = async() => {
-//         try {
-//             const articles = await this.try3times(null, this.seleniumCrawler.getBrandedTrendedArticles);
-//             console.log('크롤링 완료:', articles.articleList);
-//             if (articles) {
-//                 await this.models.branded_trended_articles.bulkCreate(articles.articleList); 
-//                 console.log('DB 저장 완료');
-//             } else {
-//                 console.error('브랜드 트렌드 아티클 데이터 없음');
-//             }
-//             return null
-//         } catch (err) {
-//             console.error('cron 작업 에러:', err);
-//         }
-// }
+    archiveSearchResultFromMusinsa = async() => {
+        try {
+            for (const keyword of this.musinsaKeywords) {
+                const searchData = await this.seleniumCrawler.getSearchResultFromMusinsa(keyword)
+                if (searchData) {
+                    await this.models.musinsa_category_search_results.bulkCreate(searchData);
+                    console.log('DB 저장 완료');
+                }
+            }
+        } catch (err) {
+            console.error('cron 작업 에러:', err);
+        }
+    }
+    archiveBrandedTrendedArticles = async() => {
+        try {
+            const articles = await this.try3times(null, this.seleniumCrawler.getBrandedTrendedArticles);
+            console.log('크롤링 완료:', articles.articleList);
+            if (articles) {
+                await this.models.branded_trended_articles.bulkCreate(articles.articleList); 
+                console.log('DB 저장 완료');
+            } else {
+                console.error('브랜드 트렌드 아티클 데이터 없음');
+            }
+            return null
+        } catch (err) {
+            console.error('cron 작업 에러:', err);
+        }
+}
 
 
 archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     try {
-        const keywordsData = await this.seleniumCrawler.getTrendedKeywordsFromMusinsa();         // Assuming keywordsData has a structure like { popular: [], rising: [] }
-         // Adjust according to the actual structure of keywordsData
+        const keywordsData = await this.seleniumCrawler.getTrendedKeywordsFromMusinsa();
         if (keywordsData) {
             let result1 = await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.popular);
             let result2 = await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.rising);
             console.log('DB 저장 완료');
             return res.status(200).json({
-                message: '트렌드 키워드 크롤링 및 저장 완료',
-                data: result1
+                message: '트렌드 키워드 크롤링 및 저장 완료'
             });
         } else {
             console.error('키워드 데이터 없음');
