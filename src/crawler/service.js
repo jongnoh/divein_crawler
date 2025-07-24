@@ -464,7 +464,9 @@ class SeleniumCrawler {
                             "type": "newRanking",
                             "timestamp": this.createKSTData().toISOString().slice(0, 19).replace('T', ' '),
                             "watchingCount": watchingCount || null,
-                            "purchasingCount": purchasingCount || null
+                            "purchasingCount": purchasingCount || null,
+                            "reviewCount" : null,
+                            "reviewScore" : null
                         })
 
 
@@ -495,6 +497,27 @@ class SeleniumCrawler {
                 console.warn('해당 relationId를 가진 객체를 찾지 못했습니다:', likesObjectsArray[i].relationId);
             }
         }
+
+        
+        const reviewResponse = await axios({
+            method: 'get',
+            url: `https://api.musinsa.com/api2/dp/v1/goods?goodsNoList=${String(idsOfItems)}`,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+            }
+        })
+        const reviewObjectsArray = reviewResponse.data.data.list
+
+        for (let i = 0; i < reviewObjectsArray.length; i++) {
+            let itemOfList = items.find(item => item.itemId == reviewObjectsArray[i].goodsNo)
+            if (itemOfList) {
+                itemOfList.reviewCount = reviewObjectsArray[i].reviewCount
+                itemOfList.reviewScore = reviewObjectsArray[i].reviewScore
+            } else {
+                console.warn('해당 goodsNo를 가진 객체를 찾지 못했습니다:', reviewObjectsArray[i].goodsNo);
+            }
+        }
+
             return items
             } catch (error) {
             console.error('Error fetching total ranking:', error);
@@ -581,6 +604,28 @@ class SeleniumCrawler {
                 console.warn('해당 relationId를 가진 객체를 찾지 못했습니다:', likesObjectsArray[i].relationId);
             }
         }
+
+
+        const reviewResponse = await axios({
+            method: 'get',
+            url: `https://api.musinsa.com/api2/dp/v1/goods?goodsNoList=${String(idsOfItems)}`,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+            }
+        })
+        const reviewObjectsArray = reviewResponse.data.data.list
+
+        for (let i = 0; i < reviewObjectsArray.length; i++) {
+            let itemOfList = items.find(item => item.itemId == reviewObjectsArray[i].goodsNo)
+            if (itemOfList) {
+                itemOfList.reviewCount = reviewObjectsArray[i].reviewCount
+                itemOfList.reviewScore = reviewObjectsArray[i].reviewScore
+            } else {
+                console.warn('해당 goodsNo를 가진 객체를 찾지 못했습니다:', reviewObjectsArray[i].goodsNo);
+            }
+        }
+
+        
             return items
             } catch (error) {
             console.error('Error fetching total ranking:', error);
