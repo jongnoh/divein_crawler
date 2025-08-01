@@ -46,6 +46,15 @@ class CrawlerController {
       res.status(500).json({ error: err.message });
     }
 }
+  getRisingProductsFromMusinsaCategorySearchList = async (req, res) => {
+    try {
+      const data = await this.seleniumCrawler.getRisingProductsFromMusinsaCategorySearchList(req.query
+      );
+      res.json({ data });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 
 module.exports = CrawlerController;

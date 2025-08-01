@@ -23,6 +23,11 @@ app.get('/total-ranking', controller.getTotalRankingFromMusinsa);
 app.get('/search/keywords', controller.getSearchResultFromMusinsa);
 app.get('/naver/login', controller.getBrandedTrendedArticles);
 
+//sheet 관련
+app.get('/search/rising', controller.getRisingProductsFromMusinsaCategorySearchList);
+
+
+
 app.get('/test', archiver.archiveTotalRankingFromMusinsa);
 
 const PORT = process.env.PORT;

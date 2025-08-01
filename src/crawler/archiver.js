@@ -14,7 +14,7 @@ class Archiver {
         this.seleniumCrawler = new SeleniumCrawler();
         this.sequelize = sequelize;
         this.models = initModels(sequelize);
-        this.musinsaKeywords = JSON.parse(process.env.MUSINSA_KEYWORDS_JULY);
+        this.musinsaKeywords = JSON.parse(process.env.MUSINSA_KEYWORDS_AUGUST);
     }
 
     try3times = async (parameter, callback) => {

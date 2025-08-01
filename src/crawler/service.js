@@ -1,11 +1,13 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
+const Repository = require('./repository.js');
+const getCurrentMonthKeywords = require('../utils/musinsa.search.keywords.js'); // Assuming you have a JSON file with keywords
 
 class SeleniumCrawler {
     constructor() {
-
-    this.options = new chrome.Options();
+        this.repository = new Repository();
+        this.options = new chrome.Options();
     this.options.addArguments('--window-size=1920,1080');
     this.options.addArguments('--no-sandbox');
     // this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
@@ -632,6 +634,73 @@ class SeleniumCrawler {
             throw error;
         }
     }
-}
 
+    getRisingProductsFromMusinsaCategorySearchList = async (data) => {
+        try {
+            let { startDate, endDate } = data;
+            if(startDate === endDate){
+                endDate = endDate.concat(' 23:59:59');
+            }
+            const results = await this.repository.findAllCategorySearchResultsByDate(startDate, endDate);
+            const keywords = getCurrentMonthKeywords(startDate, endDate);
+            let averageData = []
+            for (let keyword of keywords){
+                
+            let likeCounts = []
+            let reviewCounts = []
+            let reviewScores = []
+
+                results.filter(item => item.keyword === keyword).forEach(item => {
+                    reviewCounts.push(item.reviewCount);
+                    reviewScores.push(item.reviewScore);
+                    likeCounts.push(item.likeCount);
+                    });
+
+                
+
+                averageData.push({
+                    keyword: keyword,
+                    reviewCount: reviewCounts.reduce((a, b) => a + b, 0) / reviewCounts.length || 0,
+                    reviewScore: reviewScores.reduce((a, b) => a + b, 0) / reviewScores.length || 0,
+                    likeCount: likeCounts.reduce((a, b) => a + b, 0) / likeCounts.length || 0
+                }) 
+                }
+
+            let  risingProducts = []
+
+                for (let i=0; i < averageData.length; i++) {
+                    let keyword = averageData[i].keyword;
+                    risingProducts.push({
+                        keyword: keyword,
+                        products: []
+                    })
+                    results.filter(result => result.keyword === averageData[i].keyword).filter(
+                        item => item.reviewCount < averageData[i].reviewCount
+                    ).filter(
+                        item => item.reviewScore < averageData[i].reviewScore
+                    ).filter(
+                        item => item.likeCount < averageData[i].likeCount
+                    ).forEach(
+                        item => {
+                            risingProducts.find(r => r.keyword === keyword).products.push({
+                                itemId: item.itemId,
+                                brand: item.brand,
+                                name: item.name,
+                                keyword: item.keyword,
+                                reviewCount: item.reviewCount,
+                                reviewScore: item.reviewScore,
+                            likeCount: item.likeCount,
+                            timestamp: item.timestamp
+                        });
+                    });
+
+                }
+                return risingProducts;
+
+            } catch (error) {
+            console.error('Error fetching rising products:', error);
+            throw error;
+        }
+    }
+}
 module.exports = SeleniumCrawler;
