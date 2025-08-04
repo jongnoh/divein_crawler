@@ -46,6 +46,31 @@ class CrawlerController {
       res.status(500).json({ error: err.message });
     }
 }
+  getBrandedDiveinArticles = async (req, res) => {
+    try {
+      const result = await this.seleniumCrawler.getBrandedDiveinArticles();
+      res.json({ result });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+}
+
+
+// 시트 관련 메서드
+  
+
+
+
+
+  getRisingProductsFromMusinsaCategorySearchList = async (req, res) => {
+    try {
+      const data = await this.seleniumCrawler.getRisingProductsFromMusinsaCategorySearchList(req.query
+      );
+      res.json({ data });
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 }
 
 module.exports = CrawlerController;

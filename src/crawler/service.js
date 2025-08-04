@@ -1,11 +1,13 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
+const Repository = require('./repository.js');
+const getMonthlyKeywords = require('../utils/musinsa.search.keywords.js'); // Assuming you have a JSON file with keywords
 
 class SeleniumCrawler {
     constructor() {
-
-    this.options = new chrome.Options();
+        this.repository = new Repository();
+        this.options = new chrome.Options();
     this.options.addArguments('--window-size=1920,1080');
     this.options.addArguments('--no-sandbox');
     // this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
@@ -303,6 +305,37 @@ class SeleniumCrawler {
             await driver.quit();
         }
     
+    }
+
+    getBrandedDiveinArticles  = async () => {
+        try {
+            const fetchResult = await axios({
+                method: 'get',
+                url: 'https://apis.naver.com/cafe-web/cafe-search-api/v1.0/cafes/27877258/search/articles?query=DIVEIN&perPage=50&page=1&menuId=0&searchBy=3&views=MEMBER_LEVEL%2CCOUNT%2CSALE_INFO%2CCAFE_MENU',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+                }
+            });
+            const articles = fetchResult.data.result.articleList
+            let articleToSave = []
+            for (let article of articles) {
+                if(article.item.writerInfo.nickname !== 'DIVEIN') continue; // DIVEIN 이외 작성글 제외
+                articleToSave.push({
+                    articleId: article.item.articleId,
+                    title: article.item.subject,
+                    commentCount: article.item.commentCount,
+                    viewCount: article.item.readCount,
+                    likeCount: article.item.likeCount,
+                    timestamp: article.item.addDate,
+                    writer: article.item.writerInfo.nickname,
+                })
+            }
+            return articleToSave
+
+        } catch (err) {
+            console.error('Error fetching branded DIVEIN articles:', err);
+            throw err;
+        }
     }
 
     getTrendedKeywordsFromMusinsa = async () => {
@@ -634,6 +667,75 @@ class SeleniumCrawler {
             throw error;
         }
     }
-}
 
+    getRisingProductsFromMusinsaCategorySearchList = async (data) => {
+        try {
+            let { startDate, endDate } = data;
+            endDate = endDate.concat(' 23:59:59');
+            const results = await this.repository.findAllCategorySearchResultsByDate(startDate, endDate);
+            const keywords = getMonthlyKeywords(startDate, endDate);
+            let averageData = []
+            for (let keyword of keywords){
+                
+            let likeCounts = []
+            let reviewCounts = []
+            let reviewScores = []
+
+                results.filter(item => item.keyword === keyword).forEach(item => {
+                    reviewCounts.push(item.reviewCount);
+                    reviewScores.push(item.reviewScore);
+                    likeCounts.push(item.likeCount);
+                    });
+
+                
+
+                averageData.push({
+                    keyword: keyword,
+                    reviewCount: reviewCounts.reduce((a, b) => a + b, 0) / reviewCounts.length || 0,
+                    reviewScore: reviewScores.reduce((a, b) => a + b, 0) / reviewScores.length || 0,
+                    likeCount: likeCounts.reduce((a, b) => a + b, 0) / likeCounts.length || 0
+                }) 
+                }
+
+            let  risingProducts = []
+
+                for (let i=0; i < averageData.length; i++) {
+                    let keyword = averageData[i].keyword;
+                    risingProducts.push({
+                        keyword: keyword,
+                        avgReviewCount: averageData[i].reviewCount,
+                        avgReviewScore: averageData[i].reviewScore,
+                        avgLikeCount: averageData[i].likeCount,
+                        products: []
+                        
+                    })
+                    results.filter(result => result.keyword === averageData[i].keyword).filter(
+                        item => item.reviewCount < averageData[i].reviewCount
+                    ).filter(
+                        item => item.reviewScore < averageData[i].reviewScore
+                    ).filter(
+                        item => item.likeCount < averageData[i].likeCount
+                    ).forEach(
+                        item => {
+                            risingProducts.find(r => r.keyword === keyword).products.push({
+                                itemId: item.itemId,
+                                brand: item.brand,
+                                name: item.name,
+                                keyword: item.keyword,
+                                reviewCount: item.reviewCount,
+                                reviewScore: item.reviewScore,
+                            likeCount: item.likeCount,
+                            timestamp: item.timestamp
+                        });
+                    });
+
+                }
+                return risingProducts;
+
+            } catch (error) {
+            console.error('Error fetching rising products:', error);
+            throw error;
+        }
+    }
+}
 module.exports = SeleniumCrawler;
