@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+
+
 // 매 시각 55분에 실행
 // 예: 01:55, 02:55, 03:55 등
 
@@ -14,7 +16,8 @@ class Archiver {
         this.seleniumCrawler = new SeleniumCrawler();
         this.sequelize = sequelize;
         this.models = initModels(sequelize);
-        this.musinsaKeywords = JSON.parse(process.env.MUSINSA_KEYWORDS_JULY);
+        this.getMonthlyKeywords = require('../utils/musinsa.search.keywords');
+        this.musinsaKeywords = JSON.parse(process.env.MUSINSA_KEYWORDS_AUGUST);
     }
 
     try3times = async (parameter, callback) => {

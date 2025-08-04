@@ -359,11 +359,12 @@ class SeleniumCrawler {
 }
     getSearchResultFromMusinsa = async (keyword) => {
         try {
+        let collectCount = process.env.SEARCH_COLLECT_COUNT
         let list = []
         const timestamp = this.createKSTData().toISOString().slice(0, 19).replace('T', ' ')
 
             let idsOfKeyword = []
-        for (let i =0; i <4; i++) {
+        for (let i =0; i < Math.ceil(collectCount/50); i++) {
         const response = await axios({
             method: 'get',
             url: `https://api.musinsa.com/api2/dp/v1/plp/goods?gf=A&keyword=${keyword}&sortCode=POPULAR&page=${i+1}&size=50&caller=SEARCH`,
@@ -407,16 +408,17 @@ class SeleniumCrawler {
                 console.warn('해당 relationId를 가진 객체를 찾지 못했습니다:', likesObjectsArray[i].relationId);
             }
         }
+        return list
 
 
 } catch (err) {
         console.error('Error during crawling:', err);
         throw err;
     }
-    return list
 }
     getNewRankingFromMusinsa = async () => {
         try { 
+
             const response = await axios({
                 method: 'get',
                 url: 'https://api.musinsa.com/api2/hm/web/v5/pans/ranking?storeCode=musinsa&sectionId=200&contentsId=&categoryCode=000&gf=A',
@@ -455,13 +457,13 @@ class SeleniumCrawler {
                                 }
                             }
                         }
-                        if(items.length < 200){
+                        if(items.length < process.env.RANKING_COLLECT_COUNT){
                         items.push({
                             "itemId": dataArray[i].items[j].id,
                             "brand": dataArray[i].items[j].info.brandName,
                             "name": dataArray[i].items[j].info.productName,
                             "rank": dataArray[i].items[j].image.rank,
-                            "type": "newRanking",
+                            "type": "new",
                             "timestamp": this.createKSTData().toISOString().slice(0, 19).replace('T', ' '),
                             "watchingCount": watchingCount || null,
                             "purchasingCount": purchasingCount || null,
@@ -525,7 +527,7 @@ class SeleniumCrawler {
         }
     }
     getTotalRankingFromMusinsa = async () => {
-        try { 
+        try {
             const response = await axios({
                 method: 'get',
                 url: 'https://api.musinsa.com/api2/hm/web/v5/pans/ranking?storeCode=musinsa&sectionId=199&contentsId=&categoryCode=000&gf=A',
@@ -564,13 +566,13 @@ class SeleniumCrawler {
                                 }
                             }
                         }
-                        if(items.length < 200){
+                        if(items.length < process.env.RANKING_COLLECT_COUNT){
                         items.push({
                             "itemId": dataArray[i].items[j].id,
                             "brand": dataArray[i].items[j].info.brandName,
                             "name": dataArray[i].items[j].info.productName,
                             "rank": dataArray[i].items[j].image.rank,
-                            "type": "TotalRanking",
+                            "type": "total",
                             "timestamp": this.createKSTData().toISOString().slice(0, 19).replace('T', ' '),
                             "watchingCount": watchingCount || null,
                             "purchasingCount": purchasingCount || null
