@@ -94,6 +94,18 @@ class Archiver {
             console.error('cron 작업 에러:', err);
         }
 }
+        archiveBrandedDiveinArticles = async(req, res) => {
+        try {
+            const articles = await this.seleniumCrawler.getBrandedDiveinArticles();
+            for (let article of articles) {
+            await this.models.branded_divein_articles.upsert(article);
+            }
+            return articles
+        } catch (err) {
+            console.error('cron 작업 에러:', err);
+        }
+}
+
 
 
 archiveTrendedKeywordsFromMusinsa = async(req,res) => {

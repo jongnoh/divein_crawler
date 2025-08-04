@@ -2,7 +2,7 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
 const Repository = require('./repository.js');
-const getCurrentMonthKeywords = require('../utils/musinsa.search.keywords.js'); // Assuming you have a JSON file with keywords
+const getMonthlyKeywords = require('../utils/musinsa.search.keywords.js'); // Assuming you have a JSON file with keywords
 
 class SeleniumCrawler {
     constructor() {
@@ -305,6 +305,37 @@ class SeleniumCrawler {
             await driver.quit();
         }
     
+    }
+
+    getBrandedDiveinArticles  = async () => {
+        try {
+            const fetchResult = await axios({
+                method: 'get',
+                url: 'https://apis.naver.com/cafe-web/cafe-search-api/v1.0/cafes/27877258/search/articles?query=DIVEIN&perPage=50&page=1&menuId=0&searchBy=3&views=MEMBER_LEVEL%2CCOUNT%2CSALE_INFO%2CCAFE_MENU',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+                }
+            });
+            const articles = fetchResult.data.result.articleList
+            let articleToSave = []
+            for (let article of articles) {
+                if(article.item.writerInfo.nickname !== 'DIVEIN') continue; // DIVEIN 이외 작성글 제외
+                articleToSave.push({
+                    articleId: article.item.articleId,
+                    title: article.item.subject,
+                    commentCount: article.item.commentCount,
+                    viewCount: article.item.readCount,
+                    likeCount: article.item.likeCount,
+                    timestamp: article.item.addDate,
+                    writer: article.item.writerInfo.nickname,
+                })
+            }
+            return articleToSave
+
+        } catch (err) {
+            console.error('Error fetching branded DIVEIN articles:', err);
+            throw err;
+        }
     }
 
     getTrendedKeywordsFromMusinsa = async () => {
@@ -638,11 +669,9 @@ class SeleniumCrawler {
     getRisingProductsFromMusinsaCategorySearchList = async (data) => {
         try {
             let { startDate, endDate } = data;
-            if(startDate === endDate){
-                endDate = endDate.concat(' 23:59:59');
-            }
+            endDate = endDate.concat(' 23:59:59');
             const results = await this.repository.findAllCategorySearchResultsByDate(startDate, endDate);
-            const keywords = getCurrentMonthKeywords(startDate, endDate);
+            const keywords = getMonthlyKeywords(startDate, endDate);
             let averageData = []
             for (let keyword of keywords){
                 
@@ -672,7 +701,11 @@ class SeleniumCrawler {
                     let keyword = averageData[i].keyword;
                     risingProducts.push({
                         keyword: keyword,
+                        avgReviewCount: averageData[i].reviewCount,
+                        avgReviewScore: averageData[i].reviewScore,
+                        avgLikeCount: averageData[i].likeCount,
                         products: []
+                        
                     })
                     results.filter(result => result.keyword === averageData[i].keyword).filter(
                         item => item.reviewCount < averageData[i].reviewCount

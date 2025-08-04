@@ -28,7 +28,7 @@ app.get('/search/rising', controller.getRisingProductsFromMusinsaCategorySearchL
 
 
 
-app.get('/test', archiver.archiveTotalRankingFromMusinsa);
+app.get('/test', archiver.archiveBrandedDiveinArticles);
 
 const PORT = process.env.PORT;
 
@@ -44,19 +44,24 @@ const PORT = process.env.PORT;
 
 
 
-cron.schedule('16 * * * *', () => {
-  archiver.archiveTrendedKeywordsFromMusinsa();
-});
-cron.schedule('01 * * * *', () => {
-  archiver.archiveSearchResultFromMusinsa();
-});
-cron.schedule('10 * * * *', () => {
-  archiver.archiveNewRankingFromMusinsa();
-  archiver.archiveTotalRankingFromMusinsa();
-});
+
+// cron.schedule('16 * * * *', () => {
+//   archiver.archiveTrendedKeywordsFromMusinsa();
+// });
+// cron.schedule('01 * * * *', () => {
+//   archiver.archiveSearchResultFromMusinsa();
+// });
+// cron.schedule('10 * * * *', () => {
+//   archiver.archiveNewRankingFromMusinsa();
+//   archiver.archiveTotalRankingFromMusinsa();
+// });
+// cron.schedule('01 12 * * *', () => {
+//   archiver.archiveBrandedTrendedArticles();
+// });
 cron.schedule('01 12 * * *', () => {
-  archiver.archiveBrandedTrendedArticles();
+  archiver.archiveBrandedDiveinArticles();
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

@@ -27,7 +27,6 @@ const getMonthlyKeywords = (startDate, endDate) => {
     const endMonthData = keywords.find(item => item.month === endDate)
 
     const merged = Array.from(new Set([...startMonthData.keywords, ...endMonthData.keywords]));
-
     return merged;
 };
 
