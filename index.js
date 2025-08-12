@@ -45,19 +45,19 @@ const PORT = process.env.PORT;
 
 
 
-// cron.schedule('16 * * * *', () => {
-//   archiver.archiveTrendedKeywordsFromMusinsa();
-// });
-// cron.schedule('01 * * * *', () => {
-//   archiver.archiveSearchResultFromMusinsa();
-// });
-// cron.schedule('10 * * * *', () => {
-//   archiver.archiveNewRankingFromMusinsa();
-//   archiver.archiveTotalRankingFromMusinsa();
-// });
-// cron.schedule('01 12 * * *', () => {
-//   archiver.archiveBrandedTrendedArticles();
-// });
+cron.schedule('16 * * * *', () => {
+  archiver.archiveTrendedKeywordsFromMusinsa();
+});
+cron.schedule('01 * * * *', () => {
+  archiver.archiveSearchResultFromMusinsa();
+});
+cron.schedule('10 * * * *', () => {
+  archiver.archiveNewRankingFromMusinsa();
+  archiver.archiveTotalRankingFromMusinsa();
+});
+cron.schedule('01 12 * * *', () => {
+  archiver.archiveBrandedTrendedArticles();
+});
 cron.schedule('01 12 * * *', () => {
   archiver.archiveBrandedDiveinArticles();
 });

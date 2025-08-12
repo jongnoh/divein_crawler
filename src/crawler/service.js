@@ -3,16 +3,13 @@ const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
 const Repository = require('./repository.js');
 const getMonthlyKeywords = require('../utils/musinsa.search.keywords.js'); // Assuming you have a JSON file with keywords
+const SeleniumOption = require('../utils/selenium.js'); // Assuming you have a file for selenium options
 
 class SeleniumCrawler {
     constructor() {
         this.repository = new Repository();
-        this.options = new chrome.Options();
-    this.options.addArguments('--window-size=1920,1080');
-    this.options.addArguments('--no-sandbox');
-    // this.options.addArguments('--headless'); // Uncomment this line to run in headless mode
-    // this.options.addArguments('--disable-gpu');
-    // this.options.addArguments('--disable-dev-shm-usage');
+        this.optionInstance = new SeleniumOption();
+        this.options = this.optionInstance.options; // Chrome options 객체를 가져옴
     }
   crawl = async (url) => {
     try{
