@@ -52,29 +52,27 @@ const PORT = process.env.PORT;
   }
 })();
 
+if(!controller.crawler.musinsaDriver) {
+controller.crawler.logInToMusinsaPartner()
+}
 
 
-// if(!controller.crawler.musinsaDriver) {
-// controller.crawler.logInToMusinsaPartner()
-// }
-
-
-// cron.schedule('16 * * * *', () => {
-//   archiver.archiveTrendedKeywordsFromMusinsa();
-// });
-// cron.schedule('01 * * * *', () => {
-//   archiver.archiveSearchResultFromMusinsa();
-// });
-// cron.schedule('10 * * * *', () => {
-//   archiver.archiveNewRankingFromMusinsa();
-//   archiver.archiveTotalRankingFromMusinsa();
-// });
-// cron.schedule('01 12 * * *', () => {
-//   archiver.archiveBrandedTrendedArticles();
-// });
-// cron.schedule('01 12 * * *', () => {
-//   archiver.archiveBrandedDiveinArticles();
-// });
+cron.schedule('16 * * * *', () => {
+  archiver.archiveTrendedKeywordsFromMusinsa();
+});
+cron.schedule('01 * * * *', () => {
+  archiver.archiveSearchResultFromMusinsa();
+});
+cron.schedule('10 * * * *', () => {
+  archiver.archiveNewRankingFromMusinsa();
+  archiver.archiveTotalRankingFromMusinsa();
+});
+cron.schedule('01 12 * * *', () => {
+  archiver.archiveBrandedTrendedArticles();
+});
+cron.schedule('01 12 * * *', () => {
+  archiver.archiveBrandedDiveinArticles();
+});
 
 
 app.listen(PORT, () => {

@@ -12,6 +12,7 @@ class CrawlerController {
   getMusinsaTrendedKeywordsFromDB = async (req, res) => {
     try {
       const { startDateTime, endDateTime } = req.query;
+      console.log('시작 시간:', startDateTime, '종료 시간:', endDateTime);
       const result = await this.service.getMusinsaTrendedKeywords(startDateTime, endDateTime);
       res.status(200).json(result);
     } catch (err) {
@@ -20,8 +21,8 @@ class CrawlerController {
   }
   getMusinsaSerchResultsFromDB = async (req, res) => {
     try {
-      const { startDateTime, endDateTime } = req.query;
-      const result = await this.service.getMusinsaSearchResultForSheet(startDateTime, endDateTime);
+      const { startDate, endDate } = req.query;
+      const result = await this.service.getMusinsaSearchResultForSheet(startDate, endDate);
       res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
