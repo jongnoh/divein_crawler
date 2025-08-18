@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('branded_trended_articles', {
+  return sequelize.define('branded_divein_articles', {
     articleId: {
       type: DataTypes.STRING(100),
       allowNull: false,

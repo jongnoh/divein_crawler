@@ -307,6 +307,7 @@ class Crawler {
     //     }
     
     // }
+
     getBrandedTrendedArticles = async () => {
         try {
             const menuResponse = await axios({
@@ -711,7 +712,96 @@ class Crawler {
             throw error;
         }
     }
+getMusinsaCategories = async () => {
+    let categories = [];
+    
+    // traverse 함수 정의
+    const traverse = (List) => {
+        List.forEach(item => {
+            if (item) {
+                categories.push({
+                    categoryCode: item.categoryCode,
+                    categoryTitle: item.categoryTitle,
+                    hasSubCategory: item.hasSubCategory,
+                    parentCategoryCode: item.parentCategoryCode || null,
+                });
+                // 재귀적으로 하위 카테고리 처리
+                traverse(item.categoryList);
+            }
+        });
+    };
 
+    // 순차적으로 API 호출
+    for (let i = 0; i < 17; i++) {
+        try {
+            let categoryCode = (i + 1).toString().padStart(3, '0');
+            let categoryResponse = await axios({
+                method: 'get',
+                url: `https://api.musinsa.com/api2/dp/v1/plp/filter/categories?caller=CATEGORY&category=${categoryCode}`,
+            });
+
+            // 응답 데이터 처리
+            if (categoryResponse.data.data.list) {
+                categoryResponse.data.data.list.forEach(item => {
+                    if (item) {
+                        categories.push({
+                            categoryCode: item.categoryCode,
+                            categoryTitle: item.categoryTitle,
+                            hasSubCategory: item.hasSubCategory,
+                            parentCategoryCode: item.parentCategoryCode || null,
+                        });
+                        // 재귀적으로 하위 카테고리 처리
+                        traverse(item.categoryList);
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(`카테고리 ${i + 1} 요청 실패:`, error.message);
+        }
+    }
+    
+    return categories;
+}
+getMusinsaCategoryOfProducts = async (productId) => {
+    try {
+    let response = await axios({
+        method: 'get',
+        url: `https://www.musinsa.com/products/${productId}`
+    })
+    let htmlString = response.data;
+    console.log('카테고리 작업 시작');
+    function extractMSSProductState(htmlString) {
+    try {
+        // window.__MSS__.product.state = 다음의 객체를 찾는 정규표현식
+        const regex = /window\.__MSS__\.product\.state\s*=\s*(\{.*?\});/s;
+        const match = htmlString.match(regex);
+        
+        if (match && match[1]) {
+            // JSON 문자열을 객체로 변환
+            const objectString = match[1];
+            const productState = JSON.parse(objectString);
+            return productState;
+        }
+        
+        return null;
+    } catch (error) {
+        console.error('MSS product state 파싱 에러:', error);
+        return null;
+    }
+}
+
+let result = await extractMSSProductState(htmlString);
+if(result.goodsNo == productId) {
+    return {productId: result.goodsNo, 
+        category: result.category.categoryDepth4Code? result.category.categoryDepth4Code : result.category.categoryDepth3Code? result.category.categoryDepth3Code : result.category.categoryDepth2Code? result.category.categoryDepth2Code : result.category.categoryDepth1Code,
+    }
+}
+    } catch (err) {
+        console.error('카테고리 작업 에러:', err);
+    }
+}
+
+// 시트 관련
     logInToMusinsaPartner = async () => {
         await this.closeMusinsaDriver();
 
@@ -972,6 +1062,7 @@ class Crawler {
     }});
             return response.data
     }
+    
 
 
 

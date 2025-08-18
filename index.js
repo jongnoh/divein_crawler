@@ -12,7 +12,6 @@ const Controller = require('./src/crawler/controller.js');
 const archiver = new Archiver();
 const controller = new Controller();
 const sequelize = require('./src/utils/sequelize');
-const User = require('./src/models/users');
 const crawler = require('./src/crawler/crawler.js');
 // Load environment variables     
 dotenv.config();
@@ -21,12 +20,16 @@ app.use(express.json());
 
 
 
+app.get('/musinsa/categories', controller.getMusinsaCategoryOfProducts);
+// app.get('/musinsa/categories', archiver.archiveMusinsaCategories);
+
+
+
 app.get('/test', controller.test);
 //sheet 관련
 // 내외부현황 
 app.get('/sheet/musinsa_trended_keywords', controller.getMusinsaTrendedKeywordsFromDB);
-app.get('/sheet/musinsa_search_result', controller.getMusinsaSerchResultsFromDB);
-
+app.get('/sheet/musinsa_search_result', controller.getMusinsaCategorySearchResultsFromDB);
 
 //브랜드현황
 //재고관리
