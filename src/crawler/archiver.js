@@ -1,6 +1,6 @@
 const sequelize = require('../utils/sequelize');
 const initModels = require('../models/init-models.js');
-const SeleniumCrawler = require('./service'); // Assuming this is the correct path to your SeleniumCrawler
+const crawler = require('./crawler.js');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -13,7 +13,7 @@ dotenv.config();
 // crawling archiver
 class Archiver {
     constructor() {
-        this.seleniumCrawler = new SeleniumCrawler();
+        this.crawler = new crawler();
         this.sequelize = sequelize;
         this.models = initModels(sequelize);
         this.getMonthlyKeywords = require('../utils/musinsa.search.keywords');
@@ -42,7 +42,7 @@ class Archiver {
 
     archiveNewRankingFromMusinsa = async() => {
         try {
-            const rankingData = await this.seleniumCrawler.getNewRankingFromMusinsa();
+            const rankingData = await this.crawler.getNewRankingFromMusinsa();
             console.log('크롤링 완료:', rankingData);
             if (rankingData) {
                 await this.models.musinsa_ranking.bulkCreate(rankingData);
@@ -56,7 +56,7 @@ class Archiver {
 }
     archiveTotalRankingFromMusinsa = async() => {
         try {
-            const rankingData = await this.seleniumCrawler.getTotalRankingFromMusinsa()
+            const rankingData = await this.crawler.getTotalRankingFromMusinsa()
             console.log('크롤링 완료:', rankingData);
             if (rankingData) {
                 await this.models.musinsa_ranking.bulkCreate(rankingData);
@@ -72,7 +72,7 @@ class Archiver {
     archiveSearchResultFromMusinsa = async() => {
         try {
             for (const keyword of this.musinsaKeywords) {
-                const searchData = await this.seleniumCrawler.getSearchResultFromMusinsa(keyword)
+                const searchData = await this.crawler.getSearchResultFromMusinsa(keyword)
                 if (searchData) {
                     await this.models.musinsa_category_search_results.bulkCreate(searchData);
                     console.log('DB 저장 완료');
@@ -84,11 +84,10 @@ class Archiver {
     }
     archiveBrandedTrendedArticles = async() => {
         try {
-            const articles = await this.try3times(null, this.seleniumCrawler.getBrandedTrendedArticles);
-            console.log('크롤링 완료:', articles.articleList);
+            const articles = await this.crawler.getBrandedTrendedArticles();
             if (articles) {
-                await this.models.branded_trended_articles.bulkCreate(articles.articleList); 
-                console.log('DB 저장 완료');
+                await this.models.branded_trended_articles.bulkCreate(articles); 
+                console.log('브랜디드 인기글 DB 저장 완료');
             } else {
                 console.error('브랜드 트렌드 아티클 데이터 없음');
             }
@@ -99,7 +98,7 @@ class Archiver {
 }
         archiveBrandedDiveinArticles = async(req, res) => {
         try {
-            const articles = await this.seleniumCrawler.getBrandedDiveinArticles();
+            const articles = await this.crawler.getBrandedDiveinArticles();
             for (let article of articles) {
             await this.models.branded_divein_articles.upsert(article);
             }
@@ -113,7 +112,7 @@ class Archiver {
 
 archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     try {
-        const keywordsData = await this.seleniumCrawler.getTrendedKeywordsFromMusinsa();
+        const keywordsData = await this.crawler.getTrendedKeywordsFromMusinsa();
         if (keywordsData) {
             let result1 = await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.popular);
             let result2 = await this.models.musinsa_trended_keywords.bulkCreate(keywordsData.rising);

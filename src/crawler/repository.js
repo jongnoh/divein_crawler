@@ -1,7 +1,7 @@
 const sequelize = require('../utils/sequelize.js');
 const initModels = require('../models/init-models.js');
 const dotenv = require('dotenv');
-const { Op } = require('sequelize'); // Sequelize 연산자 가져오기
+const { Op, fn } = require('sequelize'); // Sequelize 연산자 가져오기
 
 dotenv.config();
 
@@ -10,12 +10,50 @@ class Repository {
         this.sequelize = sequelize;
         this.models = initModels(sequelize);
     }
+    findAllMusinsaTrendedKeywords = async (startDateTime, endDateTime) => {
+    try {
+        const trendedKeywords = await this.models.musinsa_trended_keywords.findAll({
+            attributes: [
+                'type',
+                'keyword',
+                'rank',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp']
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return trendedKeywords
+    } catch (error) {
+        console.error('Error fetching trended keywords:', error);
+        throw error;
+    }
+}
 
-    findAllMusinsaSearchResult = async () => {
+    findAllMusinsaSearchResult = async (startDateTime, endDateTime) => {
         try {
-            const searchResults = await this.models.musinsa_category_search_results.findAll(
-                { raw: true }
-            )
+            const searchResults = await this.models.musinsa_category_search_results.findAll({
+                attributes: [
+                    'index',
+                    'brand',
+                    'name',
+                    'itemId',
+                    'keyword',
+                    'reviewCount',
+                    'reviewScore',
+                    'likeCount',
+                    [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp']
+                ],
+                where: {
+                    timestamp: {
+                        [Op.between]: [startDateTime, endDateTime]
+                    }
+                },
+                raw: true
+            });
             return searchResults
         } catch (error) {
             console.error('Error fetching search results:', error);
@@ -63,6 +101,7 @@ class Repository {
             throw error;
         }
     }
+    
 
 }
 

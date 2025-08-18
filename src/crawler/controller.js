@@ -1,72 +1,82 @@
-const SeleniumCrawler = require('./service');
-const crawler = new SeleniumCrawler();
+const Crawler = require('./crawler');
+const Service = require('./service');
 
 class CrawlerController {
     constructor() {
-        this.seleniumCrawler = new SeleniumCrawler();
+        this.crawler = new Crawler();
+        this.service = new Service();
     }
-  getKeywordsFromMusinsa = async (req, res) => {
+
+  // 시트 관련 메서드
+  // 내외부현황 DB관련
+  getMusinsaTrendedKeywordsFromDB = async (req, res) => {
     try {
-      const data = await this.seleniumCrawler.getKeywordsFromMusinsa();
-      res.json({ data });
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.service.getMusinsaTrendedKeywords(startDateTime, endDateTime);
+      res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
-  getNewRankingFromMusinsa = async (req, res) => {
+  getMusinsaSerchResultsFromDB = async (req, res) => {
     try {
-      const data = await this.seleniumCrawler.getNewRankingFromMusinsa();
-      res.json({ data });
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.service.getMusinsaSearchResultForSheet(startDateTime, endDateTime);
+      res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
-  getTotalRankingFromMusinsa = async (req, res) => {
+  test = async (req, res) => {
     try {
-      const data = await this.seleniumCrawler.getTotalRankingFromMusinsa();
-      res.json({ data });
+      const result = await this.crawler.getBrandedTrendedArticles()
+      res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
-  getSearchResultFromMusinsa = async (req, res) => {
+
+
+  //브랜드 현황 DB관련
+  getMusinsaStockManage = async (req, res) => {
     try {
-      const keyword = '반소매 티셔츠'
-      const data = await this.seleniumCrawler.getSearchResultFromMusinsa(keyword);
-      res.json({ data });
+      const result = await this.crawler.getMusinsaStockManage();
+      res.status(200).json({ result });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
-  getBrandedTrendedArticles = async (req, res) => {
+  getMusinsaStockHistory = async (req, res) => {
     try {
-      const result = await this.seleniumCrawler.getBrandedTrendedArticles();
-      res.json({ result });
+      const { startDate, endDate } = req.body;
+      const result = await this.crawler.getMusinsaStockHistory(startDate, endDate);
+      res.status(200).json({ result });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-}
-  getBrandedDiveinArticles = async (req, res) => {
+  }
+  getMusinsaGoodsList = async (req, res) => {
     try {
-      const result = await this.seleniumCrawler.getBrandedDiveinArticles();
-      res.json({ result });
+      const data = await this.crawler.getMusinsaGoodsList();
+      res.json(data);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-}
-
-
-// 시트 관련 메서드
-  
-
-
-
-
-  getRisingProductsFromMusinsaCategorySearchList = async (req, res) => {
+  }
+  getMusinsaReviewList = async (req, res) => {
     try {
-      const data = await this.seleniumCrawler.getRisingProductsFromMusinsaCategorySearchList(req.query
-      );
-      res.json({ data });
+      const { startDate, endDate } = req.body;
+      const data = await this.crawler.getMusinsaReviewList(startDate, endDate);
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+  getMusinsaGlobalOrderHistory = async (req, res) => {
+    try {
+      const { startDate, endDate } = req.body;
+      const data = await this.crawler.getMusinsaGlobalOrderHistory(startDate, endDate);
+      res.json(data);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

@@ -29,6 +29,10 @@ module.exports = function(sequelize, DataTypes) {
     writer: {
       type: DataTypes.STRING(50),
       allowNull: true
+    },
+    menu: {
+      type: DataTypes.STRING(50),
+      allowNull: true
     }
   }, {
     sequelize,
