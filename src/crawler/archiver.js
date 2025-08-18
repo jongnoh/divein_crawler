@@ -107,8 +107,20 @@ class Archiver {
             console.error('cron 작업 에러:', err);
         }
 }
-
-
+    archiveMusinsaCategories = async(req, res) => {
+    try {
+        const categories = await this.crawler.getMusinsaCategories();
+        if (categories) {
+            await this.models.musinsa_categories.bulkCreate(categories);
+            console.log('카테고리 DB 저장 완료');
+            return null
+        } else {
+            console.error('카테고리 데이터 없음');
+        }
+    } catch (err) {
+        console.error('카테고리 작업 에러:', err);
+    }
+}
 
 archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     try {

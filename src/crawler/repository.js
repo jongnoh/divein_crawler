@@ -101,8 +101,71 @@ class Repository {
             throw error;
         }
     }
-    
+    findAllMusinsaSearchListForSheet = async (startDate, endDate) => {
+        try {
+    const results = await this.sequelize.query(`
+      SELECT
+          ranked.itemId,
+          ranked.keyword,
+          recent.reviewCount,
+          recent.reviewScore,
+          recent.likeCount,
+          ranked.rankedCount,
+          ranked.topRank,
+          ranked.bottomRank,
+          ranked.dt
+      FROM
+          (
+              SELECT
+                  itemId,
+                  keyword,
+                  DATE(timestamp) AS dt,
+                  COUNT(*) AS rankedCount,
+                  MIN(\`index\`) AS topRank,
+                  MAX(\`index\`) AS bottomRank
+              FROM musinsa_category_search_results
+              GROUP BY itemId, keyword, dt
+          ) AS ranked
+      JOIN
+          (
+              SELECT
+                  t1.itemId,
+                  t1.keyword,
+                  DATE(t1.timestamp) AS dt,
+                  t1.reviewCount,
+                  t1.reviewScore,
+                  t1.likeCount,
+                  t1.timestamp
+              FROM musinsa_category_search_results t1
+              INNER JOIN
+                  (
+                      SELECT itemId, keyword, DATE(timestamp) AS dt, MAX(timestamp) AS maxTimestamp
+                      FROM musinsa_category_search_results
+                      GROUP BY itemId, keyword, dt
+                  ) t2
+              ON t1.itemId = t2.itemId
+                 AND t1.keyword = t2.keyword
+                 AND DATE(t1.timestamp) = t2.dt
+                 AND t1.timestamp = t2.maxTimestamp
+          ) AS recent
+      ON ranked.itemId = recent.itemId
+         AND ranked.keyword = recent.keyword
+         AND ranked.dt = recent.dt
+      WHERE ranked.dt > DATE(:startDate) AND ranked.dt < DATE(:endDate)
+      ORDER BY ranked.dt, ranked.keyword
+    `, {
+      replacements: {
+        startDate: startDate,
+        endDate: endDate
+      },
+      type: this.sequelize.QueryTypes.SELECT
+    });
 
+    return results;
+  } catch (error) {
+    console.error('Query execution error:', error);
+    throw error;
+  }
 }
-
+}
 module.exports = Repository;

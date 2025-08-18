@@ -18,6 +18,14 @@ class CrawlerController {
       res.status(500).json({ error: err.message });
     }
   }
+  getMusinsaCategorySearchResultsFromDB = async (req, res) => {
+    try {
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.repository.findAllMusinsaSearchListForSheet(startDateTime, endDateTime);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   getMusinsaSerchResultsFromDB = async (req, res) => {
     try {
       const { startDateTime, endDateTime } = req.query;
@@ -29,14 +37,36 @@ class CrawlerController {
   }
   test = async (req, res) => {
     try {
-      const result = await this.crawler.getBrandedTrendedArticles()
+      const result = await this.crawler.addMenuToArticles()
       res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
 
+  getMusinsaCategories = async (req, res) => {
+    try {
+      const result = await this.crawler.getMusinsaCategories();
+      res.status(200).json(result);
+    }
+    catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
 
+  getMusinsaCategoryOfProducts = async (req, res) => {
+    try {
+let result = []
+for (const product of products) {
+      const categories = await this.crawler.getMusinsaCategoryOfProducts(product.productId);
+      result.push(categories)
+}
+      res.status(200).json({result});
+    } catch (err) {
+      console.error('카테고리 작업 에러:', err);
+      res.status(500).json({ error: err.message });
+    }
+  }
   //브랜드 현황 DB관련
   getMusinsaStockManage = async (req, res) => {
     try {

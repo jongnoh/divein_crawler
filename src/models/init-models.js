@@ -4,14 +4,14 @@ var _musinsa_category_search_results = require("./musinsa_category_search_result
 var _musinsa_ranking = require("./musinsa_ranking");
 var _musinsa_trended_keywords = require("./musinsa_trended_keywords");
 var _branded_divein_articles = require("./branded_divein_articles");``
-var _users = require("./users");
+var _musinsa_categories = require("./musinsa_categories");
 
 function initModels(sequelize) {
   var branded_trended_articles = _branded_trended_articles(sequelize, DataTypes);
   var musinsa_category_search_results = _musinsa_category_search_results(sequelize, DataTypes);
   var musinsa_ranking = _musinsa_ranking(sequelize, DataTypes);
   var musinsa_trended_keywords = _musinsa_trended_keywords(sequelize, DataTypes);
-  var users = _users(sequelize, DataTypes);
+  var musinsa_categories = _musinsa_categories(sequelize, DataTypes);
   var branded_divein_articles = _branded_divein_articles(sequelize, DataTypes);
 
   return {
@@ -19,7 +19,7 @@ function initModels(sequelize) {
     musinsa_category_search_results,
     musinsa_ranking,
     musinsa_trended_keywords,
-    users,
+    musinsa_categories,
     branded_divein_articles,
   };
 }
