@@ -2,6 +2,7 @@ const sequelize = require('../utils/sequelize');
 const initModels = require('../models/init-models.js');
 const crawler = require('./crawler.js');
 const dotenv = require('dotenv');
+const Repository = require('./repository.js');
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ dotenv.config();
 // crawling archiver
 class Archiver {
     constructor() {
+        this.repository = new Repository();
         this.crawler = new crawler();
         this.sequelize = sequelize;
         this.models = initModels(sequelize);
@@ -127,9 +129,10 @@ archiveMusinsaCategoryToMusinsaRankedItems = async () => {
     if (itemId) {
         const category = await this.crawler.getMusinsaCategoryOfProducts(itemId.itemId);
         if (category)  {
+            console.log(category)
             await this.models.musinsa_ranked_items.update(
                 { categoryCode: category.categoryCode },
-                { where: { itemId: category.itemId } }
+                { where: { itemId: category.productId } }
             );
             console.log(`카테고리 ${category.categoryCode}가 아이템 ${itemId.itemId}에 추가되었습니다.`);
         } else {

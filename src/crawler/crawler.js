@@ -732,7 +732,7 @@ getMusinsaCategories = async () => {
     };
 
     // 순차적으로 API 호출
-    for (let i = 0; i < 17; i++) {
+    for (let i = 100; i < 117; i++) {
         try {
             let categoryCode = (i + 1).toString().padStart(3, '0');
             let categoryResponse = await axios({

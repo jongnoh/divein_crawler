@@ -2,6 +2,7 @@ const sequelize = require('../utils/sequelize.js');
 const initModels = require('../models/init-models.js');
 const dotenv = require('dotenv');
 const { Op, fn } = require('sequelize'); // Sequelize 연산자 가져오기
+const { raw } = require('express');
 
 dotenv.config();
 
@@ -132,8 +133,11 @@ findOneProductToAddCategory = async () => {
     try {
         const product = await this.models.musinsa_ranked_items.findOne({
             attributes: ['itemId'],
-            where: { categoryCode: null }
-        });
+            where: { categoryCode: null },
+            raw: true
+        }
+    );
+        console.log('Product to add category:', product);
         return product;
     } catch (error) {
         console.error('Error fetching product:', error);

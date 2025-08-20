@@ -21,9 +21,9 @@ app.use(express.json());
 
 
 
-app.get('/musinsa/categories', controller.getMusinsaCategoryOfProducts);
-// app.get('/musinsa/categories', archiver.archiveMusinsaCategories);
-
+// app.get('/musinsa/category', controller.getMusinsaCategoryOfProducts);
+app.get('/musinsa/categories', archiver.archiveMusinsaCategories);
+app.post('/update/musinsa_ranked_items/category', archiver.archiveMusinsaCategoryToMusinsaRankedItems);
 
 
 app.get('/test', controller.test);
