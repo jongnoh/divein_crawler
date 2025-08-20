@@ -21,16 +21,35 @@ class CrawlerController {
   }
   getMusinsaCategorySearchResultsFromDB = async (req, res) => {
     try {
-      const { startDateTime, endDateTime } = req.query;
-      const result = await this.repository.findAllMusinsaSearchListForSheet(startDateTime, endDateTime);
+      const { startDate, endDate } = req.query;
+      const result = await this.service.getMusinsaSearchResultForSheet(startDate, endDate);
       res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
-  getMusinsaSerchResultsFromDB = async (req, res) => {
+  }
+  getMusinsaRankingFromDB = async (req, res) => {
     try {
-      const { startDate, endDate } = req.query;
-      const result = await this.service.getMusinsaSearchResultForSheet(startDate, endDate);
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.service.getMusinsaRankingForSheet(startDateTime, endDateTime);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+  getBrandedTrendedArticles = async (req, res) => {
+    try {
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.service.getBrandedTrendedArticles(startDateTime, endDateTime);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
+  getBrandedDiveinArticles = async (req, res) => {
+    try {
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.service.getBrandedDiveinArticles(startDateTime, endDateTime);
       res.status(200).json(result);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -112,6 +131,7 @@ for (const product of products) {
       res.status(500).json({ error: err.message });
     }
   }
+
 }
 
 module.exports = CrawlerController;

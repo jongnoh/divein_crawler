@@ -32,6 +32,35 @@ class Repository {
         throw error;
     }
 }
+    findAllMusinsaRankingForSheet = async (startDateTime, endDateTime) => {
+    try {
+        const musinsaRanking = await this.models.musinsa_ranking.findAll({
+                attributes: [
+                'itemId',
+                'type',
+                'rank',
+                'brand',
+                'name',
+                'reviewCount',
+                'reviewScore',
+                'likeCount',
+                'watchingCount',
+                'purchasingCount',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp']
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return musinsaRanking
+    } catch (error) {
+        console.error('Error fetching musinsa ranking:', error);
+        throw error;
+    }
+}
     findAllMusinsaSearchListForSheet = async (startDate, endDate) => {
         try {
     const results = await this.sequelize.query(`
@@ -82,7 +111,7 @@ class Repository {
       ON ranked.itemId = recent.itemId
          AND ranked.keyword = recent.keyword
          AND ranked.dt = recent.dt
-      WHERE ranked.dt > DATE(:startDate) AND ranked.dt < DATE(:endDate)
+      WHERE ranked.dt = DATE(:startDate)
       ORDER BY ranked.dt, ranked.keyword
     `, {
       replacements: {
@@ -98,8 +127,70 @@ class Repository {
     throw error;
   }
 }
-    
 
+findOneProductToAddCategory = async () => {
+    try {
+        const product = await this.models.musinsa_ranked_items.findOne({
+            attributes: ['itemId'],
+            where: { categoryCode: null }
+        });
+        return product;
+    } catch (error) {
+        console.error('Error fetching product:', error);
+        throw error;
+    }
+}
+
+findAllBrandedTrendedArticles = async (startDateTime, endDateTime) => {
+    try {
+        const articles = await this.models.branded_trended_articles.findAll({
+            attributes: [
+                'articleId',
+                'articleIndex',
+                'title',
+                'commentCount',
+                'viewCount',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp'],
+                'writer',
+                'menu'
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return articles;
+    } catch (error) {
+        console.error('Error fetching branded trended articles:', error);
+        throw error;
+    }
+}
+findAllBrandedDiveinArticles = async (startDateTime, endDateTime) => {
+    try {
+        const articles = await this.models.branded_divein_articles.findAll({
+            attributes: [
+                'articleId',
+                'title',
+                'commentCount',
+                'viewCount',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp'],
+                'menu'
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return articles;
+    } catch (error) {
+        console.error('Error fetching branded divein articles:', error);
+        throw error;
+    }
+}
 }
 
 module.exports = Repository;
