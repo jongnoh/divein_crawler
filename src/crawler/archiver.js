@@ -121,6 +121,22 @@ class Archiver {
         console.error('카테고리 작업 에러:', err);
     }
 }
+    archiveMusinsaCategoryOfProduct = async(req, res) => {
+    try {
+        const productId = null
+        const category = await this.crawler.getMusinsaCategoryOfProduct(productId);
+        if (category) {
+            await this.models.musinsa_ranked_items.create(category);
+            console.log('카테고리 DB 저장 완료');
+            return null
+        } else {
+            console.error('카테고리 데이터 없음');
+        }
+    } catch (err) {
+        console.error('카테고리 작업 에러:', err);
+    }
+}
+    
 
 archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     try {
@@ -136,6 +152,7 @@ archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     } catch (err) {
         console.error('cron 작업 에러:', err);
     }
+
 
 
 

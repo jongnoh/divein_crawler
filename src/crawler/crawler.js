@@ -769,8 +769,7 @@ getMusinsaCategoryOfProducts = async (productId) => {
         url: `https://www.musinsa.com/products/${productId}`
     })
     let htmlString = response.data;
-    console.log('카테고리 작업 시작');
-    function extractMSSProductState(htmlString) {
+    function extractMSSProductCategoryCode(htmlString) {
     try {
         // window.__MSS__.product.state = 다음의 객체를 찾는 정규표현식
         const regex = /window\.__MSS__\.product\.state\s*=\s*(\{.*?\});/s;
@@ -779,18 +778,18 @@ getMusinsaCategoryOfProducts = async (productId) => {
         if (match && match[1]) {
             // JSON 문자열을 객체로 변환
             const objectString = match[1];
-            const productState = JSON.parse(objectString);
-            return productState;
+            const productCategoryCode = JSON.parse(objectString);
+            return productCategoryCode;
         }
         
         return null;
     } catch (error) {
-        console.error('MSS product state 파싱 에러:', error);
+        console.error('MSS product category code 파싱 에러:', error);
         return null;
     }
 }
 
-let result = await extractMSSProductState(htmlString);
+let result = await extractMSSProductCategoryCode(htmlString);
 if(result.goodsNo == productId) {
     return {productId: result.goodsNo, 
         category: result.category.categoryDepth4Code? result.category.categoryDepth4Code : result.category.categoryDepth3Code? result.category.categoryDepth3Code : result.category.categoryDepth2Code? result.category.categoryDepth2Code : result.category.categoryDepth1Code,

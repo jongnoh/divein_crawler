@@ -26,6 +26,7 @@ class CrawlerController {
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
+  }
   getMusinsaSerchResultsFromDB = async (req, res) => {
     try {
       const { startDateTime, endDateTime } = req.query;

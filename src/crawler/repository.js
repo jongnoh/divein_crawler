@@ -167,5 +167,21 @@ class Repository {
     throw error;
   }
 }
+findOneProductIdToAddCategory = async () => {
+    try {
+        const product = await this.models.musinsa_ranked_items.findOne({
+            attributes: ['itemId'],
+            where: {
+                categoryCode: null
+            },
+            raw: true
+        });
+        return product;
+    } catch (error) {
+        console.error('Error fetching product by ID:', error);
+        throw error;
+    }
+}
+
 }
 module.exports = Repository;

@@ -5,6 +5,7 @@ var _musinsa_ranking = require("./musinsa_ranking");
 var _musinsa_trended_keywords = require("./musinsa_trended_keywords");
 var _branded_divein_articles = require("./branded_divein_articles");``
 var _musinsa_categories = require("./musinsa_categories");
+var _musinsa_ranked_items = require("./musinsa_ranked_items");
 
 function initModels(sequelize) {
   var branded_trended_articles = _branded_trended_articles(sequelize, DataTypes);
@@ -13,6 +14,7 @@ function initModels(sequelize) {
   var musinsa_trended_keywords = _musinsa_trended_keywords(sequelize, DataTypes);
   var musinsa_categories = _musinsa_categories(sequelize, DataTypes);
   var branded_divein_articles = _branded_divein_articles(sequelize, DataTypes);
+  var musinsa_ranked_items = _musinsa_ranked_items(sequelize, DataTypes);
 
   return {
     branded_trended_articles,
@@ -21,6 +23,7 @@ function initModels(sequelize) {
     musinsa_trended_keywords,
     musinsa_categories,
     branded_divein_articles,
+    musinsa_ranked_items,
   };
 }
 module.exports = initModels;
