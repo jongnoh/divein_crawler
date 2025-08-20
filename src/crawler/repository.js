@@ -32,75 +32,35 @@ class Repository {
         throw error;
     }
 }
-
-    findAllMusinsaSearchResult = async (startDateTime, endDateTime) => {
-        try {
-            const searchResults = await this.models.musinsa_category_search_results.findAll({
+    findAllMusinsaRankingForSheet = async (startDateTime, endDateTime) => {
+    try {
+        const musinsaRanking = await this.models.musinsa_ranking.findAll({
                 attributes: [
-                    'index',
-                    'brand',
-                    'name',
-                    'itemId',
-                    'keyword',
-                    'reviewCount',
-                    'reviewScore',
-                    'likeCount',
-                    [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp']
-                ],
-                where: {
-                    timestamp: {
-                        [Op.between]: [startDateTime, endDateTime]
-                    }
-                },
-                raw: true
-            });
-            return searchResults
-        } catch (error) {
-            console.error('Error fetching search results:', error);
-            throw error;
-        }
+                'itemId',
+                'type',
+                'rank',
+                'brand',
+                'name',
+                'reviewCount',
+                'reviewScore',
+                'likeCount',
+                'watchingCount',
+                'purchasingCount',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp']
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return musinsaRanking
+    } catch (error) {
+        console.error('Error fetching musinsa ranking:', error);
+        throw error;
     }
-    findAllRisingProductsFromMusinsaCategorySearchResults = async (startDate, endDate, reviewCountAVG, reviewScoreAVG, likeCountAVG) => {
-        try {
-            const risingProducts = await this.models.musinsa_category_search_results.findAll({
-                where: {
-                    createdAt: {
-                        [Op.between]: [startDate, endDate]
-                    },
-                    reviewCount: {
-                        [Op.lte]: reviewCountAVG
-                    },
-                    reviewScore: {
-                        [Op.lte]: reviewScoreAVG
-                    },
-                    likeCount: {
-                        [Op.lte]: reviewCountAVGlikeCountAVG
-                    }
-                },
-                raw: true
-            });
-            return risingProducts;
-        } catch (error) {
-            console.error('Error fetching rising products:', error);
-            throw error;
-        }
-    }
-    findAllCategorySearchResultsByDate = async (startDate, endDate) => {
-        try {
-            const results = await this.models.musinsa_category_search_results.findAll({
-                where: {
-                    timestamp: {
-                        [Op.between]: [startDate, endDate]
-                    }
-                },
-                raw: true
-            });
-            return results;
-        } catch (error) {
-            console.error('Error fetching category search results by date:', error);
-            throw error;
-        }
-    }
+}
     findAllMusinsaSearchListForSheet = async (startDate, endDate) => {
         try {
     const results = await this.sequelize.query(`
@@ -151,7 +111,7 @@ class Repository {
       ON ranked.itemId = recent.itemId
          AND ranked.keyword = recent.keyword
          AND ranked.dt = recent.dt
-      WHERE ranked.dt > DATE(:startDate) AND ranked.dt < DATE(:endDate)
+      WHERE ranked.dt = DATE(:startDate)
       ORDER BY ranked.dt, ranked.keyword
     `, {
       replacements: {
@@ -167,21 +127,70 @@ class Repository {
     throw error;
   }
 }
-findOneProductIdToAddCategory = async () => {
+
+findOneProductToAddCategory = async () => {
     try {
         const product = await this.models.musinsa_ranked_items.findOne({
             attributes: ['itemId'],
-            where: {
-                categoryCode: null
-            },
-            raw: true
+            where: { categoryCode: null }
         });
         return product;
     } catch (error) {
-        console.error('Error fetching product by ID:', error);
+        console.error('Error fetching product:', error);
         throw error;
     }
 }
 
+findAllBrandedTrendedArticles = async (startDateTime, endDateTime) => {
+    try {
+        const articles = await this.models.branded_trended_articles.findAll({
+            attributes: [
+                'articleId',
+                'articleIndex',
+                'title',
+                'commentCount',
+                'viewCount',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp'],
+                'writer',
+                'menu'
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return articles;
+    } catch (error) {
+        console.error('Error fetching branded trended articles:', error);
+        throw error;
+    }
 }
+findAllBrandedDiveinArticles = async (startDateTime, endDateTime) => {
+    try {
+        const articles = await this.models.branded_divein_articles.findAll({
+            attributes: [
+                'articleId',
+                'title',
+                'commentCount',
+                'viewCount',
+                [this.sequelize.fn('DATE_FORMAT', this.sequelize.col('timestamp'), '%Y-%m-%d %H:%i:%s'), 'timestamp'],
+                'menu'
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        });
+        return articles;
+    } catch (error) {
+        console.error('Error fetching branded divein articles:', error);
+        throw error;
+    }
+}
+}
+
 module.exports = Repository;

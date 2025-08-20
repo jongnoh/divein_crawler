@@ -8,11 +8,12 @@ const cron = require('node-cron');
 
 const Archiver = require('./src/crawler/archiver.js');
 const Controller = require('./src/crawler/controller.js');
+const Crawler = require('./src/crawler/crawler.js');
 
 const archiver = new Archiver();
 const controller = new Controller();
+const crawler = new Crawler();
 const sequelize = require('./src/utils/sequelize');
-const crawler = require('./src/crawler/crawler.js');
 // Load environment variables     
 dotenv.config();
 
@@ -30,7 +31,11 @@ app.get('/test', controller.test);
 // 내외부현황 
 app.get('/sheet/musinsa_trended_keywords', controller.getMusinsaTrendedKeywordsFromDB);
 app.get('/sheet/musinsa_search_result', controller.getMusinsaCategorySearchResultsFromDB);
+app.get('/sheet/musinsa_ranking', controller.getMusinsaRankingFromDB);
+app.get('/sheet/branded_trended_articles', controller.getBrandedTrendedArticles);
+app.get('/sheet/branded_divein_articles', controller.getBrandedDiveinArticles);
 
+app.post('/update/musinsa_ranked_items/category', archiver.archiveMusinsaCategoryToMusinsaRankedItems);
 //브랜드현황
 //재고관리
 app.get('/sheet/musinsa/stockManage', controller.getMusinsaStockManage);
@@ -55,11 +60,12 @@ const PORT = process.env.PORT;
   }
 })();
 
-
-
 // if(!controller.crawler.musinsaDriver) {
 // controller.crawler.logInToMusinsaPartner()
 // }
+// cron.schedule('01 12 * * *', () => {
+//   controller.crawler.logInToMusinsaPartner();
+// });
 
 
 // cron.schedule('16 * * * *', () => {

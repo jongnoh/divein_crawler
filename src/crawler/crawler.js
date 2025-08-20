@@ -792,7 +792,7 @@ getMusinsaCategoryOfProducts = async (productId) => {
 let result = await extractMSSProductCategoryCode(htmlString);
 if(result.goodsNo == productId) {
     return {productId: result.goodsNo, 
-        category: result.category.categoryDepth4Code? result.category.categoryDepth4Code : result.category.categoryDepth3Code? result.category.categoryDepth3Code : result.category.categoryDepth2Code? result.category.categoryDepth2Code : result.category.categoryDepth1Code,
+        categoryCode: result.category.categoryDepth4Code? result.category.categoryDepth4Code : result.category.categoryDepth3Code? result.category.categoryDepth3Code : result.category.categoryDepth2Code? result.category.categoryDepth2Code : result.category.categoryDepth1Code,
     }
 }
     } catch (err) {
