@@ -55,6 +55,14 @@ class CrawlerController {
       res.status(500).json({ error: err.message });
     }
   }
+  getBrandedDiveinArticlesComments = async (req, res) => {
+    try {
+      const result = await this.crawler.getBrandedDiveinArticlesComments();
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
   test = async (req, res) => {
     try {
       const result = await this.crawler.addMenuToArticles()
