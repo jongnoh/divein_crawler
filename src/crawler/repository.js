@@ -144,6 +144,27 @@ findOneProductToAddCategory = async () => {
         throw error;
     }
 }
+// updateMenuToBrandedTrendedArticles = async (articleId, menu) => {
+//     try {
+//         const result = await this.models.branded_trended_articles.update(
+//             { menu: menu },
+//             { where: { articleId: articleId } }
+//         )}catch (error) {
+//         throw error;
+//     }
+// }
+
+upsertBrandedDiveinArticleComment = async (commentObject) => {
+    try {
+        const result = await this.models.branded_divein_article_comments.upsert(
+            commentObject
+        );
+        return result;
+    } catch (error) {
+        console.error('Error creating branded divein article comment:', error);
+        throw error;
+    }
+}
 
 findAllBrandedTrendedArticles = async (startDateTime, endDateTime) => {
     try {
@@ -172,6 +193,8 @@ findAllBrandedTrendedArticles = async (startDateTime, endDateTime) => {
     }
 }
 findAllBrandedDiveinArticles = async (startDateTime, endDateTime) => {
+    startDateTime = startDateTime ? startDateTime : "2025-01-01 00:00:00";
+    endDateTime = endDateTime ? endDateTime : "2999-12-31 23:59:59";
     try {
         const articles = await this.models.branded_divein_articles.findAll({
             attributes: [
@@ -192,6 +215,20 @@ findAllBrandedDiveinArticles = async (startDateTime, endDateTime) => {
         return articles;
     } catch (error) {
         console.error('Error fetching branded divein articles:', error);
+        throw error;
+    }
+}
+findAllMusinsaWeeklyKeywords = async (dateOfMonday) => {
+    try {
+        const keywords = await this.models.musinsa_weekly_keywords.findAll({
+            where: {
+                date: dateOfMonday
+            },
+            raw: true
+        });
+        return keywords;
+    } catch (error) {
+        console.error('Error fetching musinsa weekly keywords:', error);
         throw error;
     }
 }

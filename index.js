@@ -25,7 +25,7 @@ app.use(express.json());
 app.get('/musinsa/categories', archiver.archiveMusinsaCategories);
 
 
-app.get('/test', controller.test);
+app.get('/test', controller.getBrandedDiveinArticlesComments);
 //sheet 관련
 // 내외부현황 
 app.get('/sheet/musinsa_trended_keywords', controller.getMusinsaTrendedKeywordsFromDB);

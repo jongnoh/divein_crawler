@@ -2,18 +2,19 @@ const { Builder, By, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const axios = require('axios');
 const Repository = require('./repository.js');
-const getMonthlyKeywords = require('../utils/musinsa.search.keywords.js');
 const SeleniumOption = require('../utils/selenium.js');
 const speakeasy = require('speakeasy');
 const requestForms = require('../utils/request.forms.js');
-
+const DateUtils = require('../utils/date.js');
 class Crawler {
     constructor() {
         this.repository = new Repository();
         this.optionInstance = new SeleniumOption();
         this.options = this.optionInstance.options; // Chrome options 객체를 가져옴
         this.musinsaDriver = null;
+        this.naverDriver = null;
         this.requestForms = new requestForms();
+        this.dateUtils = new DateUtils();
     }
   crawl = async (url) => {
     try{
@@ -308,6 +309,25 @@ class Crawler {
     
     // }
 
+
+    loginToNaver = async () =>{
+        this.naverDriver? this.naverDriver.quit() : null;
+        this.naverDriver = await this.createDriver();
+        const loginId = process.env.NAVER_LOGIN_ID;
+        const loginPassword = process.env.NAVER_LOGIN_PASSWORD;
+        try {
+            await this.naverDriver.get('https://nid.naver.com/nidlogin.login');
+            await this.naverDriver.wait(until.elementLocated(By.id('id')), 10000);
+            await this.naverDriver.executeScript(`document.getElementsByName('id')[0].value='${loginId}'`)
+            await this.naverDriver.executeScript(`document.getElementsByName('pw')[0].value='${loginPassword}'`)
+            await this.naverDriver.findElement(By.className('btn_login')).click();
+            console.log('네이버 로그인 성공');
+        } catch (err) {
+            console.error('네이버 로그인 중 에러 발생:', err);
+            throw err;
+        }
+    }
+
     getBrandedTrendedArticles = async () => {
         try {
             const menuResponse = await axios({
@@ -332,7 +352,6 @@ class Crawler {
             const timestamp = new Date().toLocaleString('ja-JP',{timeZone: 'Asia/Seoul', hour12: false})
             articles.forEach((article, index) => {
                 let menuName = menus.find(menu => menu.menuId === article.menuId).name
-                console.log(article)
                 articlesToSave.push(
                     {
                     articleId: article.articleId,
@@ -351,9 +370,134 @@ class Crawler {
             throw err;
         }
     }
+//     addMenuToBrandedTrendedArticles = async () => {
+//         const articles = await this.repository.findAllBrandedTrendedArticles('2025-08-12 00:00:00', '2025-08-22 00:00:00');
+//         const cookieString = 'ncvid=#vid#_101.235.54.94C11h; NAC=3zjdBsw43u82; NNB=KZ2RV54ELOOWQ; NACT=1; nci4=ab9b7355460961de8d6324333ec5b3d76033cc257727eb38e2000d1ff6887fa02a8f0507b86afbdaca3561c30035b8d54f59686385c3d51a2401bd78c78b57f18379e0b1ebfeebba709782ef92768ce689a51f030a2d08390c111f1f11111b173539002714242c2306211f53242b0e5664425d5e795c6d2757466144753d4d40674e7f3243486f7647657d70587c4d0605061d19191a1f6e61486f5c12177a14ece082efe0e1e38ce5e4e6e79b; nid_inf=1767791047; NID_AUT=78yefGOwxpCOSjrQVU5bkSiRrtV7BOr9RwouhCQ5gVa6gNSvTO6cuuAcOCFhyNi5; ncu=85bd457f602d15a6f51b5c4b46bacdab7d; ncmc4=81b1597f6c234bf4a7490e1914e89ff94a14ed580c20cf34ee1a17cf787db841a9508465878b550870cabf51eb73fc22dbcdc1c92d327b621ed4; page_uid=j6iJPlqo1fsssQ5TX3GssssssAV-393275; NID_SES=AAABpEs48JSoB23J2+16fnFik/JKbn8dErl6lJn6FJVo0jzvqDPqY8wfE+vkWi/BlY22LKLELSImFrH8VCNqaIyvugDy7BixmyC0u861oFWEhdw1XIMLsCsQaXA+VEQcLnmPWWp3/XHDQ4hGfRuI8Hq/hopGtfJtRZUECC8+I8HWX8zgFbbbo+c/VLUt+u/OzOA1m1oh2dh50mgf9FbympW+EzJO7W3WsUcbBek+9sXrafE0uHs+4Qtd3Nv68uojbIaSLb9MR8N9h91e/MDjrg4HsZqocSKCjU1mpdkqkQ7LSlgBhe7BZoJZDkv94S+Ot4XCNerUuD5bWoyY+5YuDCodULlNYeaMqCKZbTeeCkftAi41q+sBeyly0vOXrt4D7B3pfZ8pDsB3VmMlgQEA4l4fDrxYaFVJDi/n2tCFR0CGhgwob5jpuk8sTD3KiTYqXIeYAAmMhZapMhs2TBofsdTfpr/CeSWN5NHPhXRWn5qaG4D/j5C0ufHW+WxsOQg32T2wQVSmZx9NVsvk9ql3yL8soRifjUFRcd6y+Eftg8kOFvNABksj6EArK6+JJ0e6xjtpSw==; SRT30=1755747727; SRT5=1755747727; BUC=XLhC74uaM8V_fsn6jSgzSLinUizR18dqTpakmsH6neE=; ncvc2=9da55d6778350dbe817f1b2517f18ef05d1bf8074c13f920d81a24f43d'
+//         articles.forEach(async (article) => {
+//             try{
+//             const menu = await axios({
+//                 method: 'get',
+//                 url: `https://article.cafe.naver.com/gw/v3/cafes/27877258/articles/${article.articleId}`,
+//                 headers: {
+//                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome',
+//                     'Cookie': cookieString
+//             }}
+//         )
+//     article.menu = menu.data.result.article.menu.name
+//             await this.repository.updateMenuToBrandedTrendedArticles(article.articleId, article.menu)
+//     }catch (err) {
+//                 console.log(`Error fetching menu for article ${article.articleId}:`, err);
+//                 return; // 메뉴를 찾을 수 없는 경우, 해당 아티클은 건너
+//             }
+            
+// });
+//     }
+
+
+    
+    getBrandedDiveinArticlesTracks = async () => {
+    try {
+        const articles = await this.getBrandedDiveinArticles();
+        const filteredArticles = articles.filter(article => new Date(article.timestamp) > this.dateUtils.getAWeekAgoDateObject());
+        const timestamp = new Date().toLocaleString('ja-JP',{timeZone: 'Asia/Seoul', hour12: false})
+        const articlesToSave = filteredArticles.map((article, index) => ({
+            ...article,
+            articleIndex: index + 1,
+            addDate: article.timestamp,
+            timestamp
+        }));
+        return articlesToSave;
+    } catch (error) {
+        console.error('Error fetching branded divein articles:', error);
+        throw error;
+    }
+    }
+    getBrandedDiveinArticlesComments = async () => {
+        try{
+            const articles = await this.getBrandedDiveinArticlesToUpdateComment()
+            await this.loginToNaver();
+
+            const cookies = await this.naverDriver.manage().getCookies()
+            const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+            let result = []
+                    const recursion = async (article,page = 1) => {
+                    const commentsResponse = await axios({
+                        method: 'get',
+                        url: `https://article.cafe.naver.com/gw/v4/cafes/27877258/articles/${article.articleId}/comments/pages/${page}?orderBy=desc`,
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+                            'Cookie':cookieString
+                        }
+                    })
+                    const comments = commentsResponse.data.result.comments.items
+                    comments.map(async (comment) => {
+                        const commentData = {
+                            articleId: article.articleId,
+                            commentId: comment.id,
+                            content: comment.content,
+                            writer: comment.writer.nick,
+                            timestamp: new Date(comment.updateDate).toLocaleString('ja-jp'),
+                            refId: comment.isRef? comment.refId : null
+                        }
+                        result.push(commentData)
+                    })
+                    if(commentsResponse.data.result.displayCommentCount > page*100){
+                        await recursion(article, page + 1);
+                    }
+                    }
+            for (const article of articles) {
+                await recursion(article);
+            }
+            return result;
+
+        }catch (error) {
+            console.error('Error fetching branded divein articles comments:', error);
+            return error
+        }
+
+
+    }
+
+    getBrandedDiveinArticlesToUpdateComment = async () =>{
+        try {
+            const presentArticlesResponse = await axios({
+                method: 'get',
+                url:'https://apis.naver.com/cafe-web/cafe-search-api/v1.0/cafes/27877258/search/articles?query=DIVEIN&perPage=50&page=1&menuId=0&searchBy=3&views=MEMBER_LEVEL%2CCOUNT%2CSALE_INFO%2CCAFE_MENU',
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+                }
+            });
+            const presentArticles = presentArticlesResponse.data.result.articleList.map(article => ({
+                articleId:article.item.articleId,
+                commentCount: article.item.commentCount
+            }))
+                const articles = (await this.repository.findAllBrandedDiveinArticles()).slice(-50);
+                const articlesToUpdateComments = articles.filter(article => {
+                    let responseArticle = presentArticles.find(pArticle => pArticle.articleId == article.articleId);
+                    return article.commentCount < responseArticle?.commentCount;
+                })
+            return articlesToUpdateComments
+
+        } catch (error) {
+            console.error('Error fetching branded divein comments:', error);
+            throw error;
+        }
+    }
+
 
     getBrandedDiveinArticles  = async () => {
         try {
+            const menuResponse = await axios({
+            method: 'get',
+            url: 'https://apis.naver.com/cafe-web/cafe-cafemain-api/v1.0/cafes/27877258/menus',
+            headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+                    'x-cafe-product': 'pc'
+                
+                }
+            })
+            const menus = menuResponse.data.result.menus
+
             const fetchResult = await axios({
                 method: 'get',
                 url: 'https://apis.naver.com/cafe-web/cafe-search-api/v1.0/cafes/27877258/search/articles?query=DIVEIN&perPage=50&page=1&menuId=0&searchBy=3&views=MEMBER_LEVEL%2CCOUNT%2CSALE_INFO%2CCAFE_MENU',
@@ -365,6 +509,7 @@ class Crawler {
             let articleToSave = []
             for (let article of articles) {
                 if(article.item.writerInfo.nickname !== 'DIVEIN') continue; // DIVEIN 이외 작성글 제외
+                let menuName = menus.find(menu => menu.menuId === article.item.menuId).name
                 articleToSave.push({
                     articleId: article.item.articleId,
                     title: article.item.subject,
@@ -373,6 +518,7 @@ class Crawler {
                     likeCount: article.item.likeCount,
                     timestamp: article.item.addDate,
                     writer: article.item.writerInfo.nickname,
+                    menu: menuName,
                 })
             }
             return articleToSave

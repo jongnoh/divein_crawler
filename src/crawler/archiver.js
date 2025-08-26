@@ -3,6 +3,7 @@ const initModels = require('../models/init-models.js');
 const crawler = require('./crawler.js');
 const dotenv = require('dotenv');
 const Repository = require('./repository.js');
+const dateUtils = require('../utils/date.js');
 
 dotenv.config();
 
@@ -18,8 +19,7 @@ class Archiver {
         this.crawler = new crawler();
         this.sequelize = sequelize;
         this.models = initModels(sequelize);
-        this.getMonthlyKeywords = require('../utils/musinsa.search.keywords');
-        this.musinsaKeywords = JSON.parse(process.env.MUSINSA_KEYWORDS_AUGUST);
+        this.dateUtils = new dateUtils();
     }
 
     try3times = async (parameter, callback) => {
@@ -73,12 +73,13 @@ class Archiver {
 
     archiveSearchResultFromMusinsa = async() => {
         try {
-            for (const keyword of this.musinsaKeywords) {
+            const keywords = await this.repository.findAllMusinsaWeeklyKeywords(this.dateUtils.getLatestMonday())
+            for (const keyword of keywords) {
                 const searchData = await this.crawler.getSearchResultFromMusinsa(keyword)
                 if (searchData) {
-                    await this.models.musinsa_category_search_results.bulkCreate(searchData);
-                    console.log('DB 저장 완료');
-                }
+                        await this.models.musinsa_category_search_results.bulkCreate(searchData);
+                        console.log('DB 저장 완료');
+                    }
             }
         } catch (err) {
             console.error('cron 작업 에러:', err);
@@ -98,16 +99,22 @@ class Archiver {
             console.error('cron 작업 에러:', err);
         }
 }
-        archiveBrandedDiveinArticles = async(req, res) => {
-        try {
-            const articles = await this.crawler.getBrandedDiveinArticles();
-            for (let article of articles) {
-            await this.models.branded_divein_articles.upsert(article);
-            }
-            return articles
-        } catch (err) {
-            console.error('cron 작업 에러:', err);
+    archiveBrandedDiveinArticles = async(req, res) => {
+    try {
+        const articles = await this.crawler.getBrandedDiveinArticles();
+        const tracks = await this.crawler.getBrandedDiveinArticlesTracks();
+        const Comments = await this.crawler.getBrandedDiveinArticlesComments()
+        await this.models.branded_divein_articles_tracks.bulkCreate(tracks);
+        for (let article of articles) {
+        await this.models.branded_divein_articles.upsert(article);
         }
+        for (let comment of Comments) {
+        await this.models.branded_divein_articles_comments.upsert(comment);
+        }
+        return articles;
+    } catch (err) {
+        console.error('cron 작업 에러:', err);
+    }
 }
     archiveMusinsaCategories = async(req, res) => {
     try {
