@@ -696,8 +696,9 @@ class Crawler {
                             "purchasingCount": purchasingCount || null,
                             "reviewCount" : null,
                             "reviewScore" : null,
-                            "price": dataArray[i].items[j].impressionEventLog.ga4.payload.price,
+                            "price": dataArray[i].items[j].info.finalPrice,
                             "normalPrice": dataArray[i].items[j].impressionEventLog.ga4.payload.original_price,
+                            "image": dataArray[i].items[j].image.url,
                         })
 
 
@@ -805,8 +806,9 @@ class Crawler {
                             "timestamp": this.createKSTData().toISOString().slice(0, 19).replace('T', ' '),
                             "watchingCount": watchingCount || null,
                             "purchasingCount": purchasingCount || null,
-                            "price": dataArray[i].items[j].impressionEventLog.ga4.payload.price,
+                            "price": dataArray[i].items[j].info.finalPrice,
                             "normalPrice": dataArray[i].items[j].impressionEventLog.ga4.payload.original_price,
+                            "image": dataArray[i].items[j].image.url,
                         })
 
 
