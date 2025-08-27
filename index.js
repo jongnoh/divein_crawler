@@ -25,7 +25,7 @@ app.use(express.json());
 app.get('/musinsa/categories', archiver.archiveMusinsaCategories);
 
 
-app.get('/test', controller.getBrandedDiveinArticlesComments);
+// app.get('/test', controller.getMusinsaCategorySearchResults);
 //sheet 관련
 // 내외부현황 
 app.get('/sheet/musinsa_trended_keywords', controller.getMusinsaTrendedKeywordsFromDB);
@@ -33,6 +33,7 @@ app.get('/sheet/musinsa_search_result', controller.getMusinsaCategorySearchResul
 app.get('/sheet/musinsa_ranking', controller.getMusinsaRankingFromDB);
 app.get('/sheet/branded_trended_articles', controller.getBrandedTrendedArticles);
 app.get('/sheet/branded_divein_articles', controller.getBrandedDiveinArticles);
+app.get('/sheet/musinsa_significant_keywords', controller.getMusinsaSignificantKeywords);
 
 app.post('/update/musinsa_ranked_items/category', archiver.archiveMusinsaCategoryToMusinsaRankedItems);
 //브랜드현황
@@ -59,12 +60,12 @@ const PORT = process.env.PORT;
   }
 })();
 
-if(!controller.crawler.musinsaDriver) {
-controller.crawler.logInToMusinsaPartner()
-}
-cron.schedule('01 12 * * *', () => {
-  controller.crawler.logInToMusinsaPartner();
-});
+// if(!controller.crawler.musinsaDriver) {
+// controller.crawler.logInToMusinsaPartner()
+// }
+// cron.schedule('01 12 * * *', () => {
+//   controller.crawler.logInToMusinsaPartner();
+// });
 
 // //category update 매 초마다
 // cron.schedule('*/5 * * * * *', () => {
@@ -72,22 +73,22 @@ cron.schedule('01 12 * * *', () => {
 // });
 
 
-cron.schedule('16 * * * *', () => {
-  archiver.archiveTrendedKeywordsFromMusinsa();
-});
-cron.schedule('01 * * * *', () => {
-  archiver.archiveSearchResultFromMusinsa();
-});
-cron.schedule('10 * * * *', () => {
-  archiver.archiveNewRankingFromMusinsa();
-  archiver.archiveTotalRankingFromMusinsa();
-});
-cron.schedule('01 12 * * *', () => {
-  archiver.archiveBrandedTrendedArticles();
-});
-cron.schedule('01 12 * * *', () => {
-  archiver.archiveBrandedDiveinArticles();
-});
+// cron.schedule('16 * * * *', () => {
+//   archiver.archiveTrendedKeywordsFromMusinsa();
+// });
+// cron.schedule('01 * * * *', () => {
+//   archiver.archiveSearchResultFromMusinsa();
+// });
+// cron.schedule('10 * * * *', () => {
+//   archiver.archiveNewRankingFromMusinsa();
+//   archiver.archiveTotalRankingFromMusinsa();
+// });
+// cron.schedule('01 12 * * *', () => {
+//   archiver.archiveBrandedTrendedArticles();
+// });
+// cron.schedule('01 12 * * *', () => {
+//   archiver.archiveBrandedDiveinArticles();
+// });
 
 
 app.listen(PORT, () => {

@@ -42,7 +42,15 @@ module.exports = function(sequelize, DataTypes) {
     timestamp: {
       type: DataTypes.DATE,
       allowNull: true
-    }
+    },
+    normalPrice: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+    },
+    price: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+    },
   }, {
     sequelize,
     tableName: 'musinsa_category_search_results',

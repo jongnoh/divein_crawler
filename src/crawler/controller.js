@@ -19,6 +19,15 @@ class CrawlerController {
       res.status(500).json({ error: err.message });
     }
   }
+  getMusinsaSignificantKeywords = async (req, res) => {
+    try {
+      const { startDateTime, endDateTime } = req.query;
+      const result = await this.service.getMusinsaSignificantKeywords(startDateTime, endDateTime);
+      res.status(200).json(result);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+  }
   getMusinsaCategorySearchResultsFromDB = async (req, res) => {
     try {
       const { startDate, endDate } = req.query;

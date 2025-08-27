@@ -33,6 +33,25 @@ class Repository {
         throw error;
     }
 }
+findAllMusinsaTrendedKeywordList = async (startDateTime, endDateTime) => {
+    try {
+        const keywordList = await this.models.musinsa_trended_keywords.findAll({
+            attributes: [
+                [fn('DISTINCT', fn('LOWER', sequelize.col('keyword'))), 'keyword']
+            ],
+            where: {
+                timestamp: {
+                    [Op.between]: [startDateTime, endDateTime]
+                }
+            },
+            raw: true
+        })
+        return keywordList
+    }catch (error) {
+        console.error('Error fetching unique trended keywords:', error);
+        throw error;
+    }
+}
     findAllMusinsaRankingForSheet = async (startDateTime, endDateTime) => {
     try {
         const musinsaRanking = await this.models.musinsa_ranking.findAll({

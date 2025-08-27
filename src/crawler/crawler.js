@@ -607,7 +607,9 @@ class Crawler {
                 reviewScore: item.reviewScore,
                 likeCount: null,
                 keyword,
-                timestamp: timestamp
+                timestamp: timestamp,
+                normalPrice: item.normalPrice,
+                price: item.price
             })
             idsOfKeyword.push(item.goodsNo)
             })
@@ -692,7 +694,9 @@ class Crawler {
                             "watchingCount": watchingCount || null,
                             "purchasingCount": purchasingCount || null,
                             "reviewCount" : null,
-                            "reviewScore" : null
+                            "reviewScore" : null,
+                            "price": dataArray[i].items[j].impressionEventLog.ga4.payload.price,
+                            "normalPrice": dataArray[i].items[j].impressionEventLog.ga4.payload.original_price,
                         })
 
 
@@ -799,7 +803,9 @@ class Crawler {
                             "type": "total",
                             "timestamp": this.createKSTData().toISOString().slice(0, 19).replace('T', ' '),
                             "watchingCount": watchingCount || null,
-                            "purchasingCount": purchasingCount || null
+                            "purchasingCount": purchasingCount || null,
+                            "price": dataArray[i].items[j].impressionEventLog.ga4.payload.price,
+                            "normalPrice": dataArray[i].items[j].impressionEventLog.ga4.payload.original_price,
                         })
 
 

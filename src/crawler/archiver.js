@@ -21,6 +21,7 @@ class Archiver {
         this.models = initModels(sequelize);
         this.dateUtils = new dateUtils();
     }
+    
 
     try3times = async (parameter, callback) => {
     try {
@@ -99,22 +100,18 @@ class Archiver {
             console.error('cron 작업 에러:', err);
         }
 }
-    archiveBrandedDiveinArticles = async(req, res) => {
-    try {
-        const articles = await this.crawler.getBrandedDiveinArticles();
-        const tracks = await this.crawler.getBrandedDiveinArticlesTracks();
-        const Comments = await this.crawler.getBrandedDiveinArticlesComments()
-        await this.models.branded_divein_articles_tracks.bulkCreate(tracks);
-        for (let article of articles) {
-        await this.models.branded_divein_articles.upsert(article);
+        archiveBrandedDiveinArticles = async(req, res) => {
+        try {
+            const articles = await this.crawler.getBrandedDiveinArticles();
+            const tracks = await this.crawler.getBrandedDiveinArticlesTracks();
+            await this.models.branded_divein_articles_tracks.bulkCreate(tracks);
+            for (let article of articles) {
+            await this.models.branded_divein_articles.upsert(article);
+            }
+            return articles
+        } catch (err) {
+            console.error('cron 작업 에러:', err);
         }
-        for (let comment of Comments) {
-        await this.models.branded_divein_articles_comments.upsert(comment);
-        }
-        return articles;
-    } catch (err) {
-        console.error('cron 작업 에러:', err);
-    }
 }
     archiveMusinsaCategories = async(req, res) => {
     try {

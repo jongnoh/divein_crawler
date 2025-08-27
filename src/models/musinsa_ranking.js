@@ -50,6 +50,14 @@ module.exports = function(sequelize, DataTypes) {
     reviewScore: {
       type: DataTypes.INTEGER,
       allowNull: true
+    },
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    normalPrice: {
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,
