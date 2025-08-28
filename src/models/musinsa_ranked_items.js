@@ -18,6 +18,14 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(50),
       allowNull: true
     },
+    image: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    goodsCreateDate: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
   }, {
     sequelize,
     tableName: 'musinsa_ranked_items',
