@@ -609,8 +609,7 @@ class Crawler {
                 keyword,
                 timestamp: timestamp,
                 normalPrice: item.normalPrice,
-                price: item.price,
-                image: item.thumbnail
+                price: item.price
             })
             idsOfKeyword.push(item.goodsNo)
             })

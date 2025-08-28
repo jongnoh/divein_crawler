@@ -51,10 +51,6 @@ module.exports = function(sequelize, DataTypes) {
     type: DataTypes.INTEGER,
     allowNull: true
     },
-    image: {
-    type: DataTypes.TEXT,
-    allowNull: true
-    },
   }, {
     sequelize,
     tableName: 'musinsa_category_search_results',
