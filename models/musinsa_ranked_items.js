@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(50),
       allowNull: true,
       comment: '카테고리 코드'
-    }
+    },
   }, {
     sequelize,
     tableName: 'musinsa_ranked_items',

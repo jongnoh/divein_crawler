@@ -72,11 +72,12 @@ class Archiver {
         }
 }
 
-    archiveSearchResultFromMusinsa = async() => {
+    archiveSearchResultFromMusinsa = async(req,res) => {
         try {
             const keywords = await this.repository.findAllMusinsaWeeklyKeywords(this.dateUtils.getLatestMonday())
             for (const keyword of keywords) {
-                const searchData = await this.crawler.getSearchResultFromMusinsa(keyword)
+                const searchData = await this.crawler.getSearchResultFromMusinsa(keyword.keyword)
+                res.status(200).json({ searchData });
                 if (searchData) {
                         await this.models.musinsa_category_search_results.bulkCreate(searchData);
                         console.log('DB 저장 완료');
