@@ -74,7 +74,7 @@ cron.schedule('01 12 * * *', () => {
 // cron.schedule('*/5 * * * * *', () => {
 //   archiver.archiveMusinsaCategoryToMusinsaRankedItems();
 // });
-
+archiver.archiveSearchResultFromMusinsa();
 
 cron.schedule('16 * * * *', () => {
   archiver.archiveTrendedKeywordsFromMusinsa();

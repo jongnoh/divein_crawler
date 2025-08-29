@@ -72,12 +72,11 @@ class Archiver {
         }
 }
 
-    archiveSearchResultFromMusinsa = async(req,res) => {
+    archiveSearchResultFromMusinsa = async() => {
         try {
             const keywords = await this.repository.findAllMusinsaWeeklyKeywords(this.dateUtils.getLatestMonday())
             for (const keyword of keywords) {
                 const searchData = await this.crawler.getSearchResultFromMusinsa(keyword.keyword)
-                res.status(200).json({ searchData });
                 if (searchData) {
                         await this.models.musinsa_category_search_results.bulkCreate(searchData);
                         console.log('DB 저장 완료');
@@ -169,11 +168,14 @@ archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     } catch (err) {
         console.error('cron 작업 에러:', err);
     }
-
-
-
-
 }
-
+updateMusinsaRankedItems = async(req,res) => {
+    try {
+        
+        
+    } catch (err) {
+        console.error('cron 작업 에러:', err);
+    }
+}
 }
 module.exports = Archiver;
