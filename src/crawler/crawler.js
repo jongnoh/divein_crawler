@@ -1062,6 +1062,30 @@ if(result.goodsNo == productId) {
         }
     }
 
+    getMusinsaGoodsCreateDate = async (itemId) => {
+        try{
+            const response = await axios({
+                method: 'get',
+                url: `https://goods.musinsa.com/api2/review/v1/picture-reviews?goodsNo=${itemId}&size=1&page=1`,
+            });
+            let result = null;
+            if(response.data.data.list[0]){
+                result = {
+                    itemId : itemId,
+                    goodsCreateDate : response.data.data.list[0].goods.goodsCreateDate ? response.data.data.list[0].goods.goodsCreateDate : "9999-12-31"
+                }
+            }
+            console.log(result);
+            return result
+        } catch (error) {
+            console.error('Error fetching goods create date:', error);
+            throw error;
+        }
+    
+    
+    }
+        
+
     getMusinsaDailySettlement = async (startDate, endDate, status) => {
         /** 
          * startDate, endDate는 string 타입으로 '2025-08-12' 형식이어야 합니다.

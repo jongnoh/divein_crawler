@@ -63,35 +63,32 @@ const PORT = process.env.PORT;
   }
 })();
 
-if(!controller.crawler.musinsaDriver) {
-controller.crawler.logInToMusinsaPartner()
-}
-cron.schedule('01 12 * * *', () => {
-  controller.crawler.logInToMusinsaPartner();
-});
 
-// //category update 매 초마다
-// cron.schedule('*/5 * * * * *', () => {
-//   archiver.archiveMusinsaCategoryToMusinsaRankedItems();
+
+// if(!controller.crawler.musinsaDriver) {
+// controller.crawler.logInToMusinsaPartner()
+// }
+// cron.schedule('01 12 * * *', () => {
+//   controller.crawler.logInToMusinsaPartner();
 // });
 
-
-cron.schedule('16 * * * *', () => {
-  archiver.archiveTrendedKeywordsFromMusinsa();
-});
-cron.schedule('01 * * * *', () => {
-  archiver.archiveSearchResultFromMusinsa();
-});
-cron.schedule('10 * * * *', () => {
-  archiver.archiveNewRankingFromMusinsa();
-  archiver.archiveTotalRankingFromMusinsa();
-});
-cron.schedule('01 12 * * *', () => {
-  archiver.archiveBrandedTrendedArticles();
-});
-cron.schedule('01 12 * * *', () => {
-  archiver.archiveBrandedDiveinArticles();
-});
+// cron.schedule('16 * * * *', () => {
+//   archiver.archiveTrendedKeywordsFromMusinsa();
+// });
+// cron.schedule('01 * * * *', () => {
+//   archiver.archiveSearchResultFromMusinsa();
+// });
+// cron.schedule('10 * * * *', () => {
+//   archiver.archiveNewRankingFromMusinsa();
+//   archiver.archiveTotalRankingFromMusinsa();
+//   archiver.archiveGoodsCreateDateToRankedItems();
+// });
+// cron.schedule('01 12 * * *', () => {
+//   archiver.archiveBrandedTrendedArticles();
+// });
+// cron.schedule('01 12 * * *', () => {
+//   archiver.archiveBrandedDiveinArticles();
+// });
 
 
 app.listen(PORT, () => {

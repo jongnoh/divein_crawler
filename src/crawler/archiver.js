@@ -1,9 +1,12 @@
 const sequelize = require('../utils/sequelize');
+const { Op, QueryTypes } = require('sequelize');
 const initModels = require('../models/init-models.js');
 const crawler = require('./crawler.js');
 const dotenv = require('dotenv');
 const Repository = require('./repository.js');
 const dateUtils = require('../utils/date.js');
+const { raw } = require('express');
+const { create } = require('sequelize/lib/model');
 
 dotenv.config();
 
@@ -151,10 +154,40 @@ archiveMusinsaCategoryToMusinsaRankedItems = async () => {
         console.error('카테고리 추가 작업 중 에러 발생:', error);
         throw error;
     }
-
-
 }
+archiveGoodsCreateDateToRankedItems = async () => {
+ try{
+    const ItemsToProcess = await this.repository.findAllMusinsaRenkedItemsToAddGoodsCreateDate()
 
+    for(let item of ItemsToProcess) {
+        setInterval(async () => {
+        const itemId = await this.repository.findOneMusinsaRenkedItemToAddGoodsCreateDate();
+        if (!itemId) {
+            console.log('goodsCreateDate가 NULL인 아이템이 없습니다.');
+            return;
+        }
+        const createDate = await this.crawler.getMusinsaGoodsCreateDate(itemId.itemId);
+        if(createDate && createDate.goodsCreateDate&& createDate.itemId) {
+            await this.models.musinsa_ranked_items.update(
+                { goodsCreateDate: createDate.goodsCreateDate? createDate.goodsCreateDate : "9999-12-31 00:00:00" },
+                { where: { itemId: createDate.itemId } }
+            );
+            console.log(`상품 등록일 ${createDate.goodsCreateDate}가 아이템 ${createDate.itemId}에 추가되었습니다.`);
+        }else{
+            await this.models.musinsa_ranked_items.update(
+            { goodsCreateDate: "9999-12-31" },
+            { where: { itemId: itemId.itemId } }
+            );
+        }
+
+        }, 3000); // 3초마다
+
+    }
+} catch (error) {
+    console.error('상품 등록일 추가 작업 중 에러 발생:', error);
+    throw error;
+}
+ }
 archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     try {
         const keywordsData = await this.crawler.getTrendedKeywordsFromMusinsa();
@@ -169,10 +202,6 @@ archiveTrendedKeywordsFromMusinsa = async(req,res) => {
     } catch (err) {
         console.error('cron 작업 에러:', err);
     }
-
-
-
-
 }
 
 }
