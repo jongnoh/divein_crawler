@@ -74,6 +74,7 @@ class Archiver {
 
     archiveSearchResultFromMusinsa = async() => {
         try {
+            console.log('a) 검색 결과 아카이브 시작');
             const keywords = await this.repository.findAllMusinsaWeeklyKeywords(this.dateUtils.getLatestMonday())
             for (const keyword of keywords) {
                 const searchData = await this.crawler.getSearchResultFromMusinsa(keyword.keyword)

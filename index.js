@@ -63,18 +63,17 @@ const PORT = process.env.PORT;
   }
 })();
 
-if(!controller.crawler.musinsaDriver) {
-controller.crawler.logInToMusinsaPartner()
-}
-cron.schedule('01 12 * * *', () => {
-  controller.crawler.logInToMusinsaPartner();
-});
+// if(!controller.crawler.musinsaDriver) {
+// controller.crawler.logInToMusinsaPartner()
+// }
+// cron.schedule('01 12 * * *', () => {
+//   controller.crawler.logInToMusinsaPartner();
+// });
 
 // //category update 매 초마다
 // cron.schedule('*/5 * * * * *', () => {
 //   archiver.archiveMusinsaCategoryToMusinsaRankedItems();
 // });
-archiver.archiveSearchResultFromMusinsa();
 
 cron.schedule('16 * * * *', () => {
   archiver.archiveTrendedKeywordsFromMusinsa();
