@@ -148,6 +148,33 @@ findAllMusinsaTrendedKeywordList = async (startDateTime, endDateTime) => {
   }
 }
 
+findOneMusinsaRenkedItemToAddGoodsCreateDate = async () => {
+    try {
+        const itemId = await this.models.musinsa_ranked_items.findOne({
+        attributes: ['itemId'],
+        where: { goodsCreateDate: null },
+        raw: true
+    });
+    return itemId;
+} catch (error) {
+    console.error('Error fetching item for goodsCreateDate:', error);
+    throw error;
+}
+}
+findAllMusinsaRenkedItemsToAddGoodsCreateDate = async () => {
+    try {
+        const itemIds = await this.models.musinsa_ranked_items.findAll({
+            attributes: ['itemId'],
+            where: { goodsCreateDate: null },
+            raw: true
+        });
+        return itemIds;
+    } catch (error) {
+        console.error('Error fetching items for goodsCreateDate:', error);
+        throw error;
+    }
+}
+
 findOneProductToAddCategory = async () => {
     try {
         const product = await this.models.musinsa_ranked_items.findOne({
